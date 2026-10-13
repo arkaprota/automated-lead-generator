@@ -104,6 +104,69 @@ LeadPilot AI turns a simple user input (e.g., *"Web designer looking for dental 
   - If classified as `INTERESTED` or `MEETING_REQUESTED`, emits real-time WebSocket event (`lead:positive_reply`).
   - Next.js dashboard flashes an ambient, high-priority desktop toast alert with sound and inline thread preview.
 
+### 4.4 Pipeline 4: AI Command Center (Conversational Chat Assistant)
+- **In-App Chat Interface:** A persistent chat panel in the dashboard sidebar where users interact with the platform via natural language.
+- **Natural Language → Action Execution:**
+  - "Find me dentists in Mumbai who don't have a website" → Auto-triggers Pipeline 1 (lead generation) with correct demographic parameters.
+  - "Create a campaign for all hot leads from last week" → Auto-selects leads, pre-fills campaign wizard, and queues for review.
+  - "How many emails did we send this week?" → Queries analytics and returns structured answer with inline charts.
+  - "Draft a follow-up for leads that opened but didn't reply" → Generates personalized follow-up copy.
+- **Context-Aware Conversation Memory:** Maintains per-workspace conversation history so follow-up queries understand prior context (e.g., "Now filter those to only 4-star ratings").
+- **Action Confirmation Protocol:** For destructive or high-impact actions (sending emails, deleting leads), the AI presents a confirmation card with details before executing.
+- **Gemini Function Calling:** Backend maps user intents to platform API endpoints via Gemini's function-calling/tool-use capability with strict Zod-validated action schemas.
+
+### 4.5 Pipeline 5: AI Auto-Pilot Workflows (Autonomous Sequences)
+- **Smart Follow-Up Sequences:**
+  - When a lead opens an email but doesn't reply within 48 hours → AI auto-drafts and queues a contextual follow-up.
+  - When a reply is classified as `QUESTION` → AI generates an informative response and queues it for user review/auto-send.
+  - When a reply is classified as `NOT_INTERESTED` → Auto-pauses the sequence for that lead, marks as cold, and stops further outreach.
+- **AI-Optimized Send Time Scheduling:**
+  - Analyzes historical open/reply rate data per timezone and industry vertical.
+  - Automatically adjusts BullMQ dispatch windows to optimal engagement hours per lead segment.
+- **Lead Re-Engagement Engine:**
+  - Identifies stale leads (no activity in 30+ days) with high original scores.
+  - Auto-generates fresh pitch angles and re-engagement emails with updated value propositions.
+- **Auto-Escalation Rules:**
+  - `MEETING_REQUESTED` replies → Auto-creates calendar booking link suggestion and notifies workspace owner via Socket.io + email.
+  - Multiple positive replies in a burst → Triggers "hot streak" alert with summary dashboard.
+
+### 4.6 Pipeline 6: AI Insights & Proactive Recommendations Engine
+- **Smart Dashboard Insights Panel:**
+  - A dedicated "AI Insights" widget on the main dashboard that surfaces actionable intelligence without user prompting.
+  - Examples:
+    - "🔥 15 hot leads haven't been contacted yet — launch a campaign?"
+    - "📈 Campaign 'Mumbai Dentists' has 42% open rate — consider scaling to nearby cities."
+    - "⚠️ Your sender reputation score dropped 8% this week — reduce daily send volume."
+    - "💡 Leads in the 'Restaurants' vertical convert 3x better than 'Retail' — focus there."
+- **Weekly AI Summary Digest:**
+  - Auto-generated workspace performance report (leads generated, emails sent, replies received, conversion rates).
+  - Delivered as an in-app notification card + optional email digest.
+- **Campaign Health Monitoring:**
+  - Tracks bounce rates, spam complaints, and unsubscribe signals per sender profile.
+  - Proactively alerts when metrics cross danger thresholds and recommends corrective actions.
+- **Lead Scoring Trend Analysis:**
+  - Tracks how lead quality evolves across campaigns and demographics.
+  - Recommends adjustments to targeting parameters based on historical conversion patterns.
+
+### 4.7 Pipeline 7: AI Email Composer (Real-Time Writing Assistant)
+- **In-App AI Writing Studio:**
+  - Integrated into the campaign email editor and reply composer.
+  - Users can type a rough draft or prompt, and the AI refines it into polished, conversion-optimized copy.
+- **Smart Generation Modes:**
+  - **Generate from Scratch:** "Write a cold email for web design services targeting restaurants" → Full email with subject line.
+  - **Rewrite / Improve:** Paste existing copy → AI suggests tone adjustments, stronger CTAs, and personalization tokens.
+  - **A/B Variant Generator:** One-click generation of 2–3 subject line and body variants for split testing.
+  - **Tone Control:** Slider or dropdown to adjust between Professional ↔ Casual ↔ Urgent ↔ Friendly.
+- **Dynamic Personalization Injection:**
+  - Auto-inserts lead-specific variables (`{{businessName}}`, `{{painPoint}}`, `{{estimatedRoi}}`) based on lead data and Gemini pitch analysis.
+  - Preview mode shows the email as the specific lead would receive it.
+- **Subject Line Optimizer:**
+  - Analyzes subject lines against open-rate benchmarks and suggests improvements.
+  - Scores each variant with a predicted open rate percentage.
+- **Compliance & Deliverability Guard:**
+  - Scans outgoing copy for spam trigger words, excessive capitalization, and missing unsubscribe links.
+  - Displays real-time deliverability health score as the user composes.
+
 ---
 
 ## 5. Non-Functional Requirements & System Goals
@@ -113,3 +176,7 @@ LeadPilot AI turns a simple user input (e.g., *"Web designer looking for dental 
 - **Zero-Hallucination AI:** Strict structured JSON schemas (`responseMimeType: 'application/json'`) with Zod schema validation; resilient heuristic fallbacks for offline/test environments.
 - **Sub-Second Real-Time Latency:** Socket.io room broadcasts deliver positive reply alerts to client dashboards within 500ms of webhook ingestion.
 - **Scalability:** Stateless Express API servers decoupled from BullMQ background worker instances.
+- **AI Response Latency:** Chat assistant responses must stream within 1 second of user input; action confirmations must resolve within 3 seconds.
+- **Conversation Context Window:** AI Command Center maintains up to 50 messages of per-workspace conversation context for coherent multi-turn interactions.
+- **Auto-Pilot Safety:** All autonomous email sends require either explicit user opt-in per workflow rule or a 30-minute review window before dispatch.
+- **Insight Freshness:** Proactive recommendations refresh every 6 hours or on significant data events (campaign completion, burst of replies).

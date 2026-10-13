@@ -32,4 +32,6 @@ description: Core platform guidelines, architectural boundaries, and coding stan
 - Every AI agent MUST inspect the `.agents/` directory before writing code.
 - Continuously update `.agents/task.md` (check off completed items) and `.agents/memory.md` (update current state and feature registry) on every completed milestone.
 
-
+## 7. Mandatory Implementation Plan Before Features or Major Changes
+- Always provide a clear, structured Implementation Plan before introducing any new feature or executing significant architectural changes.
+- Detail the scope, affected files, schema/contract alterations, step-by-step execution path, and testing/validation strategy.

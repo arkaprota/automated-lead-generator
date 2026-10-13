@@ -14,6 +14,7 @@
 - **Code Follows Documentation:** Never write code before checking and aligning with `prd.md`, `architecture.md`, `rules.md`, and `design.md`.
 - **State Updating Mandate:** After completing any task or milestone, the AI engineer **MUST** update `task.md` (check off items) and `memory.md` (update current status and feature registry).
 - **Task Logging:** Document every assigned task in `TASK_LOG.md` with UTC timestamp, objective, modified files, test results, and commit hash.
+- **Mandatory Implementation Plan:** Always construct and present a structured **Implementation Plan** before adding a new feature or making any major architectural/code change. The plan must detail the scope, affected files, schema/contract changes, and testing strategy.
 
 ### 1.2 Strict Multi-Tenant Isolation
 - Every relational table storing tenant data **MUST** contain a `workspace_id` column.

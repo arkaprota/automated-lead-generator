@@ -2,8 +2,8 @@
 
 ## Document Information
 - **Project:** LeadPilot AI Platform
-- **State Version:** 1.0.0
-- **Last Updated:** October 13, 2026 10:35 UTC
+- **State Version:** 1.1.0
+- **Last Updated:** October 13, 2026 10:52 UTC
 - **Active Phase:** Phase 1.0 - Documentation Setup & Architecture Baseline
 
 ---
@@ -52,6 +52,11 @@
 | **Campaign Builder Wizard** | Frontend UI | `PENDING` | Scheduled for Phase 2. |
 | **Unified Real-Time Inbox** | Frontend UI | `PENDING` | Scheduled for Phase 3. |
 | **Stripe Metered Billing Integration** | Payments / Billing | `PENDING` | Scheduled for Phase 4. |
+| **AI Command Center (Chat Assistant)** | AI Native / Chat | `PENDING` | Phase 2.2. Gemini function calling + SSE streaming + conversation memory. |
+| **AI Auto-Pilot Workflows** | AI Native / Automation | `PENDING` | Phase 2.3. BullMQ cron workers, follow-up sequences, re-engagement, send-time optimization. |
+| **AI Insights & Recommendations** | AI Native / Analytics | `PENDING` | Phase 2.4. Background aggregation worker + proactive dashboard insights. |
+| **AI Email Composer** | AI Native / Writing | `PENDING` | Phase 2.5. Real-time email generation, A/B testing, tone control, deliverability scoring. |
+| **AI Database Schema (ai_conversations, ai_messages, autopilot_rules, ai_insights)** | Database / AI | `PENDING` | Phase 2.1. New RLS-enforced tables for AI subsystems. |
 
 ---
 
@@ -60,3 +65,5 @@
 1. **Strict DDD Protocol:** Code development will only proceed after reviewing `prd.md`, `architecture.md`, `rules.md`, and `design.md`. Every milestone completion requires immediate updating of `task.md` and `memory.md`.
 2. **Multi-Tenancy Anchor:** All tenant data is strictly isolated via PostgreSQL Row-Level Security (RLS) driven by `workspace_id`.
 3. **Queue Fairness:** Upstash Redis with BullMQ manages outbound emails to prevent any single workspace from starving other tenants.
+4. **AI-Native Architecture (Added Oct 13, 2026):** Platform upgraded from tool-based AI to full AI-native intelligence layer. Four subsystems added: (1) Conversational Chat Assistant with Gemini function calling, (2) Autonomous Auto-Pilot workflow engine with BullMQ cron workers, (3) Proactive Insights engine with background analytics aggregation, (4) Real-time Email Composer with streaming generation and deliverability scoring. All AI features are workspace-scoped with RLS enforcement.
+5. **AI Safety Protocol:** Auto-pilot actions require either explicit user opt-in or a 30-minute review window before dispatch. Destructive chat commands require user confirmation via action cards.

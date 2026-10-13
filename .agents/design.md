@@ -81,3 +81,49 @@
 - **Position:** Fixed bottom-right overlay (`fixed bottom-6 right-6 z-50`).
 - **Styling:** Emerald glowing border, backdrop blur, ambient pulsing animation.
 - **Content:** Prospect business name, quote snippet from incoming email, and "Open Thread" direct action button.
+
+### 4.6 AI Command Center Chat Panel
+- **Position & Layout:** Right sidebar panel (400px width), toggleable via `Cmd+K` or sidebar icon. Slides in with `transform: translateX()` animation (200ms ease-out).
+- **Header:** Gradient brand bar with "LeadPilot AI" title, sparkle icon, and minimize/close buttons.
+- **Message Bubbles:**
+  - User messages: Right-aligned, `bg-sky-600/20` with `border-sky-500/30`, rounded-2xl.
+  - AI messages: Left-aligned, `bg-slate-800/60` with `border-white/10`, streaming typing effect with cursor blink animation.
+  - Function call cards: Inline expandable cards showing action name, parameters, and execution status with spinner → checkmark transition.
+- **Action Confirmation Cards:** Highlighted card with amber/emerald border, action summary, parameter preview, and [Confirm] / [Cancel] buttons with hover glow.
+- **Input Bar:** Bottom-fixed input with `placeholder="Ask LeadPilot anything..."`, send button with gradient, and `Shift+Enter` for multiline.
+- **Quick Actions:** Pill-shaped suggestion chips above input ("Generate leads", "Campaign stats", "Draft email") with subtle float animation.
+
+### 4.7 Auto-Pilot Settings & Dashboard
+- **Settings Page (`/settings/autopilot`):**
+  - Card-based rule list with toggle switches (enabled/disabled), rule name, trigger description, and cooldown timer.
+  - Each rule card has an expandable detail section with condition editor and action configuration.
+  - Status indicators: `Active` (emerald pulse), `Paused` (amber), `Disabled` (slate).
+- **Execution Audit Log:**
+  - Scrollable timeline showing auto-pilot actions with timestamps, lead names, action type pills, and status badges.
+  - Filter by rule type, date range, and execution status.
+- **Review Queue Widget:**
+  - Floating notification badge showing count of auto-pilot drafts pending user review.
+  - Expandable panel showing queued follow-ups with [Approve] / [Edit] / [Discard] actions.
+
+### 4.8 AI Insights Dashboard Widget
+- **Position:** Top section of the main dashboard, above lead table.
+- **Layout:** Horizontal scrollable card carousel (3 visible at a time) with gradient background strip.
+- **Insight Card Design:**
+  - Priority-based left border color: `high` = emerald glow, `medium` = amber, `low` = sky.
+  - Icon + type badge (🔥 Opportunity, ⚠️ Warning, 📈 Trend, 💡 Suggestion).
+  - Concise message text (max 2 lines) with "Take Action" button that deep-links to the relevant page.
+  - Dismiss button (X) with fade-out animation + "don't show again" option.
+- **Weekly Digest Card:** Special full-width summary card with mini sparkline charts for key metrics (leads, emails, replies, conversions).
+
+### 4.9 AI Email Composer
+- **Position:** Inline toolbar embedded in campaign email editor and reply composer.
+- **Toolbar Actions:** Icon buttons with tooltips: ✨ Generate, 🔄 Rewrite, 🔀 A/B Variants, 🎨 Tone, 📊 Score.
+- **Tone Selector:** Dropdown with pill options: `Professional` | `Casual` | `Urgent` | `Friendly`, each with distinct color accent.
+- **A/B Variant Panel:** Side-by-side comparison cards showing 2–3 variants with predicted open-rate badges and [Use This] buttons.
+- **Deliverability Score Meter:**
+  - Circular progress ring (0–100) displayed inline next to subject line input.
+  - Color gradient: 0–40 = rose (poor), 41–70 = amber (fair), 71–100 = emerald (excellent).
+  - Expandable panel showing flagged issues (spam words, caps ratio, missing elements).
+- **Live Preview Pane:** Split-view toggle showing the email as a specific lead would receive it, with personalization tokens resolved to actual lead data.
+- **Streaming Animation:** AI-generated text appears with a smooth typewriter effect, character by character, with a violet cursor indicator.
+

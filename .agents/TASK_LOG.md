@@ -16,6 +16,8 @@
 | **007** | 2026-10-13 05:04 | Initialize 6 Core DDD Files (`prd.md`, `architecture.md`, etc.) | ✅ Completed | `55dc65d` |
 | **008** | 2026-10-13 05:10 | Relocate Documentation Files into `.agents/` Folder | ✅ Completed | `af7eb36` |
 | **009** | 2026-10-13 05:16 | Codify Mandatory Continuous `.agents/` Synchronization & Updates | ✅ Completed | Pending |
+| **010** | 2026-10-13 10:50 | Integrate Full AI-Native Intelligence Layer (Chat, Auto-Pilot, Insights, Composer) | ✅ Completed | Pending |
+| **011** | 2026-10-13 11:29 | Codify Mandatory Implementation Plan Rule & Folder Structure Guide | ✅ Completed | Pending |
 
 ---
 
@@ -144,6 +146,46 @@
   - Updated `.agents/rules/platform-rules.md` (always-on rule) with Section 6 enforcing pre-task `.agents/` inspection and continuous updates.
   - Updated `.agents/AI_CODING_RULES.md` adding `Rule 0: Mandatory .agents/ Workflow & Continuous Memory Sync`.
 - **Verification**: All rulebooks aligned and cross-referenced.
+- **Status**: ✅ Completed
+
+
+---
+
+### Task #010: Integrate Full AI-Native Intelligence Layer
+- **Timestamp**: 2026-10-13 10:50 UTC
+- **User Prompt**: "i want to integrate inbuilt AI as well to automate the process" → User confirmed: All four AI-native subsystems (Chat Assistant, Auto-Pilot, Insights, Email Composer).
+- **Files Modified**:
+  - `.agents/prd.md`: Added Pipelines 4–7 (AI Command Center, Auto-Pilot Workflows, Insights Engine, Email Composer) + expanded Non-Functional Requirements with AI latency, safety, and freshness constraints.
+  - `.agents/architecture.md`: Added Section 2.6 (Built-In AI Native Layer), updated monorepo tree with new services/workers (`ai-chat.service.ts`, `ai-autopilot.service.ts`, `ai-insights.service.ts`, `ai-composer.service.ts`, `autopilot.worker.ts`, `insights.worker.ts`), added Mermaid data flow diagrams for Pipelines 5–7.
+  - `.agents/task.md`: Added Phase 2 (AI-Native Intelligence Layer) with sub-phases 2.1–2.5 covering AI database schema, chat assistant, auto-pilot, insights, and email composer implementation tasks.
+  - `.agents/design.md`: Added component specs 4.6–4.9 (Chat Panel, Auto-Pilot Settings, Insights Widget, Email Composer) with detailed layout, animation, and interaction patterns.
+  - `.agents/memory.md`: Updated state version to 1.1.0, added 5 new features to Feature Registry, added architectural decisions #4 (AI-Native Architecture) and #5 (AI Safety Protocol).
+  - `.agents/TASK_LOG.md`: This entry.
+- **Key Technical Decisions**:
+  1. **SSE (Server-Sent Events)** for chat streaming instead of WebSocket (simpler, HTTP-native, works with proxies).
+  2. **Gemini Function Calling** for mapping natural language to platform actions (type-safe via Zod tool schemas).
+  3. **30-minute review window** for auto-pilot actions as safety guardrail.
+  4. **Per-workspace conversation history** (50 messages) stored in PostgreSQL with RLS enforcement.
+  5. **Hybrid deliverability scoring** (rule-based + AI) for email composer spam detection.
+- **Verification**: All 6 `.agents/` documentation files updated consistently. No code changes (documentation-only task).
+- **Status**: ✅ Completed
+
+---
+
+### Task #011: Codify Mandatory Implementation Plan Rule & Folder Structure Documentation
+- **Timestamp**: 2026-10-13 11:29 UTC
+- **User Prompt**: "what is the folder structure that it is following and always add a implemetation plan before adding a new feature or big chnge"
+- **Actions Taken**:
+  - Analyzed and documented current active folder structure across root, `/backend`, `/frontend`, and `.agents/`.
+  - Added Rule 9 ("Mandatory Implementation Plan Before Features or Major Changes") to `AGENTS.md`.
+  - Updated `.agents/rules.md` (Section 1.1) to mandate structured implementation plans before new feature development or major changes.
+  - Updated `.agents/rules/platform-rules.md` (Section 7) establishing implementation plan requirement as an always-on agent rule.
+- **Files Modified**:
+  - `AGENTS.md`
+  - `.agents/rules.md`
+  - `.agents/rules/platform-rules.md`
+  - `.agents/TASK_LOG.md`
+- **Verification**: All rulebooks synchronized with the new rule.
 - **Status**: ✅ Completed
 
 

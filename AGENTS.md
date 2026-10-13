@@ -72,6 +72,17 @@ Every AI agent operating in this repository **MUST** unconditionally follow this
 - Every time a task is given to an AI agent or developer, it **MUST** be recorded in [.agents/TASK_LOG.md](.agents/TASK_LOG.md).
 - Each entry must record: Task #, UTC timestamp, User request objective, modified files, test results, and Git commit hash.
 - Keep [.agents/PROJECT_DOCUMENTATION.md](.agents/PROJECT_DOCUMENTATION.md) and [.agents/memory.md](.agents/memory.md) updated as platform features evolve.
+
+### Rule 9: Mandatory Implementation Plan Before Features or Major Changes
+- **ALWAYS** construct and present a clear, structured **Implementation Plan** before adding a new feature or making significant architectural/code modifications.
+- The plan must clearly outline:
+  1. Scope and functional objectives
+  2. Files to be created or modified
+  3. Database schema or API contract alterations
+  4. Step-by-step execution order
+  5. Verification and automated testing strategy
+- Never jump directly into large refactors or feature additions without first stating the plan.
+
 - The 6 Core Documentation-Driven Development (DDD) files are housed in the [`.agents/`](.agents/) directory:
   - [`.agents/prd.md`](.agents/prd.md)
   - [`.agents/architecture.md`](.agents/architecture.md)
