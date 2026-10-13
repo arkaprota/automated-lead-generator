@@ -52,15 +52,15 @@ Every AI agent operating in this repository **MUST** unconditionally follow this
 - Scraped leads are unique per workspace on `(workspace_id, google_place_id)` and `(workspace_id, website)`.
 - Always handle insert conflicts gracefully with `.onConflictDoNothing()`.
 
-### Rule 5: Code Reusability & Folder Structure
-- Maintain clean, modular folder structures:
-  - Configuration in `src/config/`
-  - Database schema & migrations in `src/db/`
-  - Middlewares in `src/middleware/`
-  - Route handlers in `src/routes/`
-  - Business logic & integrations in `src/services/`
-  - Domain types in `src/types/`
-- Never duplicate logic across routes or services. Use shared service classes (`GeminiService`, `BrochureService`, `QueueService`, `SocketService`).
+### Rule 5: Strict Modular File & Folder Separation for 100% Reusability
+- Every codebase (`/frontend`, `/backend`, `/packages/*`), folder, and file MUST follow the **Single Responsibility Principle (SRP)**.
+- **Separate file for every separate concept**:
+  - Each enum gets its own `.enum.ts` file.
+  - Each schema gets its own `.schema.ts` file.
+  - Each domain interface gets its own `.interface.ts` file.
+  - Each controller, service, repository, route, and worker gets its own dedicated file.
+- **NEVER** lump multiple schemas, models, or unrelated utilities into single monolithic "catch-all" files.
+- Maximize reusability by extracting isomorphic types, validations, and helpers into dedicated shared packages (`packages/shared-types`, `packages/utils`, `packages/database`).
 
 ### Rule 6: Scope Discipline
 - Only perform the requested work. Do not make unprompted changes to unrelated features or existing working code.
@@ -73,15 +73,15 @@ Every AI agent operating in this repository **MUST** unconditionally follow this
 - Each entry must record: Task #, UTC timestamp, User request objective, modified files, test results, and Git commit hash.
 - Keep [.agents/PROJECT_DOCUMENTATION.md](.agents/PROJECT_DOCUMENTATION.md) and [.agents/memory.md](.agents/memory.md) updated as platform features evolve.
 
-### Rule 9: Mandatory Implementation Plan Before Features or Major Changes
+### Rule 9: Mandatory Implementation Plan & Explicit User Authorization Before Coding
 - **ALWAYS** construct and present a clear, structured **Implementation Plan** before adding a new feature or making significant architectural/code modifications.
 - The plan must clearly outline:
   1. Scope and functional objectives
-  2. Files to be created or modified
+  2. Files to be created or modified (with dedicated, single-responsibility file paths)
   3. Database schema or API contract alterations
   4. Step-by-step execution order
   5. Verification and automated testing strategy
-- Never jump directly into large refactors or feature additions without first stating the plan.
+- **STRICT BARRIER**: Presenting the plan is a hard checkpoint. The agent **MUST NOT** start writing code or creating files until the user explicitly reviews the plan and instructs to proceed with coding.
 
 - The 6 Core Documentation-Driven Development (DDD) files are housed in the [`.agents/`](.agents/) directory:
   - [`.agents/prd.md`](.agents/prd.md)
