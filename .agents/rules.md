@@ -37,6 +37,18 @@
 - **Do Not Touch Unrelated Things:** Never touch, refactor, reformat, or alter existing working code, configurations, packages, styles, or utilities outside the explicit scope of the user request.
 - **Preserve Existing State:** Maintain all comments, docstrings, variable naming patterns, and established architecture unless explicitly directed to change them.
 
+### 1.5 Standard 5-Stage Engineering Lifecycle & Automatic Git Push
+Every feature, fix, or code modification MUST follow this sequential 5-stage lifecycle:
+1. **Coding:** Write modular, single-responsibility code strictly adhering to architectural boundaries. Surgical modifications only.
+2. **Debugging:** Actively debug and resolve any compilation, type check, or runtime errors before considering work complete.
+3. **Automated Testing Loop:** Run full test suites (`npm test`) and TypeScript checks (`tsc --noEmit`). If any error or bug appears, fix it immediately and re-run testing in a loop until **zero bugs and zero errors remain**.
+4. **Documentation Sync:** Update `.agents/task.md` (check off tasks), `.agents/memory.md` (state and features), and record the task in `.agents/TASK_LOG.md`.
+5. **Automatic Git Push:** Automatically stage changes (`git add .`), commit with descriptive semantic messages, and **push to GitHub (`origin/main`)** upon verification. Never leave verified work uncommitted or unpushed.
+
+### 1.6 Universal Applicability & Repository-Wide Governance
+- These rules apply unconditionally to **EVERY AI agent, human developer, and future collaborator** working on this repository.
+- No developer or agent is permitted to bypass these rules under any circumstance.
+
 ---
 
 ## 2. Technology & Coding Standards

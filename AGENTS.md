@@ -85,6 +85,18 @@ Every AI agent operating in this repository **MUST** unconditionally follow this
   5. Verification and automated testing strategy
 - **STRICT BARRIER**: Presenting the plan is a hard checkpoint. The agent **MUST NOT** start writing code or creating files until the user explicitly reviews the plan and instructs to proceed with coding.
 
+### Rule 10: Mandatory 5-Stage Engineering Flow & Automatic Git Push
+Every feature, bugfix, or code change MUST follow this strict 5-stage sequential lifecycle:
+1. **Stage 1 (Coding)**: Write modular, single-responsibility code strictly adhering to architectural boundaries. Surgical modifications only.
+2. **Stage 2 (Debugging)**: Actively debug and resolve any compilation or lint issues before considering code complete.
+3. **Stage 3 (Testing Loop)**: Run complete test suites (`npm test` / Vitest) and TypeScript compiler checks (`tsc --noEmit`). If any error, bug, or failure occurs, **fix it immediately and repeat testing in a loop until zero errors remain**.
+4. **Stage 4 (Documentation Sync)**: Update `.agents/task.md` (check off tasks), `.agents/memory.md` (state and features), and record the task in `.agents/TASK_LOG.md`.
+5. **Stage 5 (Automatic Git Push)**: Automatically stage changes (`git add .`), create a clear semantic commit, and **push directly to GitHub (`origin/main`)** upon successful verification. Never leave verified work uncommitted or unpushed.
+
+### Rule 11: Universal Governance & Multi-Contributor Enforcement
+- These rules and guidelines apply unconditionally to **EVERY AI agent, human developer, and future contributor** operating in this repository.
+- Every contributor MUST read and follow `.agents/` and `AGENTS.md`. No developer or agent is permitted to bypass these rules under any circumstance.
+
 - The 6 Core Documentation-Driven Development (DDD) files are housed in the [`.agents/`](.agents/) directory:
   - [`.agents/prd.md`](.agents/prd.md)
   - [`.agents/architecture.md`](.agents/architecture.md)

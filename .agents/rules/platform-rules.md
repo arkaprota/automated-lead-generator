@@ -47,4 +47,17 @@ description: Core platform guidelines, architectural boundaries, and coding stan
 - **Do not touch unrelated things**: Never alter, refactor, reformat, or delete existing working code, interfaces, configurations, styles, or utilities outside the explicit scope.
 - **Preserve existing state**: Keep all unaffected functions, comments, configurations, and architecture intact.
 
+## 10. Mandatory 5-Stage Engineering Flow & Automatic Git Push
+- Every task MUST execute through the 5-stage lifecycle:
+  1. **Coding**: Modular, single responsibility, surgical edits only.
+  2. **Debugging**: Immediately resolve compiler, type, and lint diagnostics.
+  3. **Testing Loop**: Run automated tests (`npm test`) and typechecks (`tsc --noEmit`). Fix errors iteratively until **zero bugs/errors remain**.
+  4. **Documentation**: Update `.agents/task.md`, `.agents/memory.md`, and log in `.agents/TASK_LOG.md`.
+  5. **Automatic Git Push**: Automatically stage, commit, and push directly to GitHub (`origin/main`) upon verification.
+
+## 11. Universal Repository-Wide Governance
+- These rules apply unconditionally to all AI agents, human developers, and contributors.
+- No developer or agent is permitted to bypass these rules under any circumstance.
+
+
 
