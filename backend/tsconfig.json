@@ -11,7 +11,13 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@leadpilot/shared-types": ["../packages/shared-types/src/index.ts"],
+      "@leadpilot/utils": ["../packages/utils/src/index.ts"],
+      "@leadpilot/database": ["../packages/database/src/index.ts"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]

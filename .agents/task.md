@@ -7,10 +7,10 @@
 ## 🎯 Phase 1: Foundation & Core MVP
 
 ### Phase 1.1: Monorepo Workspace & Configuration Architecture
-- [ ] Initialize monorepo structure with standard workspaces (`/apps/web`, `/apps/api`, `/packages/database`, `/packages/shared-types`).
-- [ ] Configure root `package.json` with npm/pnpm workspaces and scripts (`dev`, `build`, `test`, `lint`).
-- [ ] Establish shared base `tsconfig.json` configurations with strict typing enabled across all packages.
-- [ ] Setup root environment template (`.env.example`) and `.gitignore` preventing secret leaks.
+- [x] Initialize monorepo structure with standard workspaces (`backend`, `frontend`, `packages/shared-types`, `packages/utils`, `packages/database`).
+- [x] Configure root `package.json` with npm workspaces and unified scripts (`dev`, `build`, `test`, `typecheck`).
+- [x] Establish shared base `tsconfig.base.json` configurations with strict typing enabled across all packages.
+- [x] Setup root environment template (`.env.example`) and `.gitignore` preventing secret leaks.
 
 ### Phase 1.2: Multi-Tenant PostgreSQL Schema & Neon RLS
 - [ ] Define PostgreSQL `schema.sql` supporting tables: `workspaces`, `users`, `workspace_members`, `sender_profiles`, `leads`, `campaigns`, `email_events`.

@@ -5,13 +5,17 @@
   "description": "Scalable, multi-tenant Cold Email Outreach and Lead Generation SaaS",
   "workspaces": [
     "backend",
-    "frontend"
+    "frontend",
+    "packages/*"
   ],
   "scripts": {
     "dev:backend": "npm --workspace=backend run dev",
     "dev:frontend": "npm --workspace=frontend run dev",
+    "build": "npm run build --workspaces --if-present",
     "build:backend": "npm --workspace=backend run build",
     "build:frontend": "npm --workspace=frontend run build",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm --workspace=backend test",
     "test:backend": "npm --workspace=backend test"
   },
   "keywords": [
