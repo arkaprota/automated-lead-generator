@@ -1,0 +1,30 @@
+{
+  "name": "automated-leads-generator-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scalable, multi-tenant Cold Email Outreach and Lead Generation SaaS",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm --workspace=backend run dev",
+    "dev:frontend": "npm --workspace=frontend run dev",
+    "build:backend": "npm --workspace=backend run build",
+    "build:frontend": "npm --workspace=frontend run build",
+    "test:backend": "npm --workspace=backend test"
+  },
+  "keywords": [
+    "cold-email",
+    "lead-generation",
+    "ai",
+    "gemini",
+    "bullmq",
+    "neon-postgres",
+    "clerk",
+    "nextjs",
+    "express"
+  ],
+  "author": "",
+  "license": "UNLICENSED"
+}
