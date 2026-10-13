@@ -42,3 +42,9 @@ description: Core platform guidelines, architectural boundaries, and coding stan
 - Separate files for every separate concept: dedicated files for each enum, schema, interface, controller, service, repository, and component.
 - Shared packages (`packages/shared-types`, `packages/utils`, `packages/database`) isolate domain logic for maximum reusability. No monolithic multi-purpose files.
 
+## 9. Surgical Code Modifications (Change Only What Is Required)
+- **Only modify the required code**: Make targeted, minimal edits strictly necessary to fulfill the request; never rewrite entire files or change all the things.
+- **Do not touch unrelated things**: Never alter, refactor, reformat, or delete existing working code, interfaces, configurations, styles, or utilities outside the explicit scope.
+- **Preserve existing state**: Keep all unaffected functions, comments, configurations, and architecture intact.
+
+

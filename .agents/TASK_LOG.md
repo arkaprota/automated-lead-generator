@@ -18,7 +18,8 @@
 | **009** | 2026-10-13 05:16 | Codify Mandatory Continuous `.agents/` Synchronization & Updates | ✅ Completed | Pending |
 | **010** | 2026-10-13 10:50 | Integrate Full AI-Native Intelligence Layer (Chat, Auto-Pilot, Insights, Composer) | ✅ Completed | Pending |
 | **011** | 2026-10-13 11:29 | Codify Mandatory Implementation Plan Rule & Folder Structure Guide | ✅ Completed | `03be8fc` |
-| **012** | 2026-10-13 11:35 | Codify Strict File Separation Rule & User Authorization Checkpoint | ✅ Completed | Pending |
+| **012** | 2026-10-13 11:35 | Codify Strict File Separation Rule & User Authorization Checkpoint | ✅ Completed | `65f478a` |
+| **013** | 2026-10-13 11:41 | Codify Surgical Code Modifications Rule (Change Only Required Code) | ✅ Completed | Pending |
 
 ---
 
@@ -207,3 +208,21 @@
   - `.agents/TASK_LOG.md`
 - **Verification**: Git tree clean; rulebooks synchronized; premature files removed.
 - **Status**: ✅ Completed
+
+---
+
+### Task #013: Codify Surgical Code Modifications Rule (Change Only Required Code)
+- **Timestamp**: 2026-10-13 11:41 UTC
+- **User Prompt**: "also add a rule only change the require code dont change all the things"
+- **Actions Taken**:
+  - Updated `AGENTS.md` Rule 6 to "Surgical Code Modifications & Strict Scope Discipline (Change Only What Is Required)": strictly forbidding rewriting entire files, touching unrelated code/features, or changing working components outside the explicit scope.
+  - Updated `.agents/rules.md` (Section 1.4) mandating minimal blast radius, targeted edits, and preserving existing working state and comments.
+  - Updated `.agents/rules/platform-rules.md` (Section 9) adding surgical code modifications as an always-on platform directive.
+- **Files Modified**:
+  - `AGENTS.md`
+  - `.agents/rules.md`
+  - `.agents/rules/platform-rules.md`
+  - `.agents/TASK_LOG.md`
+- **Verification**: All rulebooks aligned with the minimal blast radius and surgical modification principle.
+- **Status**: ✅ Completed
+

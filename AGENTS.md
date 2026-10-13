@@ -62,8 +62,10 @@ Every AI agent operating in this repository **MUST** unconditionally follow this
 - **NEVER** lump multiple schemas, models, or unrelated utilities into single monolithic "catch-all" files.
 - Maximize reusability by extracting isomorphic types, validations, and helpers into dedicated shared packages (`packages/shared-types`, `packages/utils`, `packages/database`).
 
-### Rule 6: Scope Discipline
-- Only perform the requested work. Do not make unprompted changes to unrelated features or existing working code.
+### Rule 6: Surgical Code Modifications & Strict Scope Discipline (Change Only What Is Required)
+- **ONLY change the required code**: Never rewrite entire files or modify unrelated blocks of code when a targeted, minimal change fulfills the task.
+- **Do not touch unrelated things**: Never alter, refactor, reformat, or delete existing working code, interfaces, routes, styles, or configurations outside the explicit scope of the request.
+- **Preserve existing state**: Keep all unaffected functions, comments, configurations, and structures intact. Practice minimal blast radius on every single edit.
 
 ### Rule 7: Real Data Requirement
 - When developing or testing in any financial/stock related projects or workflows, always use real data sources.

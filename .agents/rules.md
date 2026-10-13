@@ -32,6 +32,11 @@
 - Inbound webhooks (`/api/webhooks/*`) **MUST** be idempotent. Use `message_id` or external provider event IDs to avoid duplicate processing.
 - Workers in BullMQ **MUST** implement exponential backoff retry policies and dead-letter queue (DLQ) logging.
 
+### 1.4 Surgical Scope Discipline & Minimal Blast Radius
+- **Change Only Required Code:** When modifying code, make precise, targeted edits only to the specific lines and functions necessary. Never rewrite entire files or alter adjacent unrelated blocks.
+- **Do Not Touch Unrelated Things:** Never touch, refactor, reformat, or alter existing working code, configurations, packages, styles, or utilities outside the explicit scope of the user request.
+- **Preserve Existing State:** Maintain all comments, docstrings, variable naming patterns, and established architecture unless explicitly directed to change them.
+
 ---
 
 ## 2. Technology & Coding Standards
