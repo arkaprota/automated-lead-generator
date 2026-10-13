@@ -13,7 +13,8 @@
 | **003** | 2026-10-13 03:32 | Link GitHub Remote & Push Codebase to `origin/main` | ✅ Completed | `cc20b14` |
 | **004** | 2026-10-13 03:33 | Create Platform Rulebooks (`AGENTS.md` & `.agents/rules/platform-rules.md`) | ✅ Completed | `a85125a` |
 | **006** | 2026-10-13 04:50 | Establish Mandatory Task Logging Protocol & `TASK_LOG.md` | ✅ Completed | `6815972` |
-| **007** | 2026-10-13 05:04 | Initialize 6 Core DDD Files (`prd.md`, `architecture.md`, `rules.md`, `design.md`, `task.md`, `memory.md`) | ✅ Completed | Pending |
+| **007** | 2026-10-13 05:04 | Initialize 6 Core DDD Files (`prd.md`, `architecture.md`, etc.) | ✅ Completed | `55dc65d` |
+| **008** | 2026-10-13 05:10 | Relocate Documentation Files into `.agents/` Folder | ✅ Completed | Pending |
 
 ---
 
@@ -107,5 +108,28 @@
   - `task.md`: Phase 1 (Foundation & Core MVP) execution roadmap broken down into sequential checkboxes (Phase 1.1 to Phase 1.6).
   - `memory.md`: Project state tracker, completed task log, comprehensive feature registry table.
 - **Verification**: All 6 files validated; `memory.md` updated with completion of Phase 1.0.
+- **Git Push**: Pushed commit `55dc65d` to `origin/main`.
 - **Status**: ✅ Completed
+
+---
+
+### Task #008: Relocate Documentation Files into `.agents/` Folder
+- **Timestamp**: 2026-10-13 05:10 UTC
+- **User Prompt**: "put all those files inside agents folder"
+- **Actions Taken**:
+  - Confirmed target directory preference with user: `.agents/` (Antigravity workspace customization folder).
+  - Moved 9 documentation files using `git mv` from root into `.agents/`:
+    - `.agents/prd.md`
+    - `.agents/architecture.md`
+    - `.agents/rules.md`
+    - `.agents/design.md`
+    - `.agents/task.md`
+    - `.agents/memory.md`
+    - `.agents/PROJECT_DOCUMENTATION.md`
+    - `.agents/AI_CODING_RULES.md`
+    - `.agents/TASK_LOG.md`
+  - Updated root `AGENTS.md` and `README.md` to reference `.agents/` paths.
+- **Verification**: Git status verified as clean renames; all files accessible in `.agents/`.
+- **Status**: ✅ Completed
+
 

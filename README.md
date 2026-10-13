@@ -11,6 +11,20 @@ A production-grade, multi-tenant monorepo for automated B2B lead generation, dyn
 - **Queue & Background Jobs**: Upstash Redis with BullMQ (multi-tenant fair-share round-robin processing and rate-limiting).
 - **Real-Time Layer**: Socket.io for live desktop notifications on positive replies.
 - **AI Engine**: Google Gemini API (`gemini-2.5-flash`) with structured outputs.
+- **Documentation & Agent Workspace**: Managed under [`.agents/`](.agents/) following Documentation-Driven Development (DDD).
+
+---
+
+## 📚 Documentation & System Design
+
+All project specifications, architecture blueprints, rules, and task roadmaps are organized in the [`.agents/`](.agents/) directory:
+- [`.agents/prd.md`](.agents/prd.md) — Product Requirements Document & Persona Profiles
+- [`.agents/architecture.md`](.agents/architecture.md) — System Topology, Data Flows & Mermaid Diagrams
+- [`.agents/rules.md`](.agents/rules.md) — Architectural Invariants, RLS Enforcement & Coding Standards
+- [`.agents/design.md`](.agents/design.md) — UI/UX Design System, Color Tokens & Component Specifications
+- [`.agents/task.md`](.agents/task.md) — Phase 1 Sequential Execution Roadmap & Milestones
+- [`.agents/memory.md`](.agents/memory.md) — Active Project State, Completed Logs & Feature Registry
+- [`.agents/TASK_LOG.md`](.agents/TASK_LOG.md) — Immutable Audit Trail of Every Prompt & Task Executed
 
 ---
 
