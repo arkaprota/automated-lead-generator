@@ -16,6 +16,23 @@ This document defines the strict architectural boundaries, code standards, and o
 
 ---
 
+## 🚨 MANDATORY AGENT DIRECTIVE: Continuous `.agents/` Synchronization
+
+Every AI agent operating in this repository **MUST** unconditionally follow this workflow on every single user request:
+1. **Always Read `.agents/` First**: Before writing or modifying code, the agent MUST review the relevant files in [`.agents/`](.agents/):
+   - [`.agents/prd.md`](.agents/prd.md): Product requirements & functional pipeline specifications.
+   - [`.agents/architecture.md`](.agents/architecture.md): System topology, tech stack boundaries, and Mermaid data flows.
+   - [`.agents/rules.md`](.agents/rules.md): Coding standards, RLS patterns, and non-blocking worker requirements.
+   - [`.agents/design.md`](.agents/design.md): UI aesthetic, color tokens, and component guidelines.
+2. **Strict Compliance**: All code, migrations, and features MUST strictly comply with the guidelines defined in `.agents/`.
+3. **Continuous Updating Mandate**:
+   - **Update [`.agents/task.md`](.agents/task.md)**: Check off finished tasks (`- [x]`) sequentially as milestones are completed.
+   - **Update [`.agents/memory.md`](.agents/memory.md)**: Log completed actions and update the Feature Registry status (`COMPLETED`, `IN_PROGRESS`, etc.).
+   - **Log in [`.agents/TASK_LOG.md`](.agents/TASK_LOG.md)**: Every user instruction/task MUST be recorded with timestamp, objective, files changed, and test results.
+4. **Never Ignore or Bypass `.agents/`**: The `.agents/` directory is the single source of truth for the entire platform.
+
+---
+
 ## 📜 Core Platform Rules (Non-Negotiable)
 
 ### Rule 1: Strict Frontend / Backend Separation

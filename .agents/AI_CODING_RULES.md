@@ -4,6 +4,21 @@ This document is the **authoritative rulebook for AI coding assistants** working
 
 ---
 
+## 🧭 Rule 0: Mandatory `.agents/` Workflow & Continuous Memory Sync
+
+- **Pre-Task Review**: Before modifying any code, the AI **MUST** inspect the relevant specification documents inside `.agents/`:
+  - `.agents/prd.md` (Product specifications & pipeline invariants)
+  - `.agents/architecture.md` (Tech stack, monorepo tree, Mermaid data flows)
+  - `.agents/rules.md` (Engineering rules & RLS requirements)
+  - `.agents/design.md` (Design system tokens & UI component specs)
+- **Continuous Documentation Updates**:
+  - Keep `.agents/task.md` up-to-date by checking off completed milestone items (`- [x]`).
+  - Keep `.agents/memory.md` up-to-date after completing tasks (update status & feature registry).
+  - Log every prompt in `.agents/TASK_LOG.md` with UTC timestamp, objectives, and test results.
+- **Single Source of Truth**: The `.agents/` directory is the single source of truth for all requirements, state, and rules.
+
+---
+
 ## 🛑 Rule 1: Strict Architectural Separation (Frontend vs. Backend)
 
 - **NEVER** place backend code, database drivers (`pg`, `neon`, `drizzle`), Redis/BullMQ clients, scraper utilities, Puppeteer instances, or server secrets (`CLERK_SECRET_KEY`, `GEMINI_API_KEY`, `DATABASE_URL`) inside the `/frontend` directory.

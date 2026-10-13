@@ -24,7 +24,12 @@ description: Core platform guidelines, architectural boundaries, and coding stan
 - Maintain resilient fallbacks so development and offline environments do not crash when external API keys are pending.
 
 ## 5. Mandatory Task Logging & Progress Tracking
-- Always document each user prompt and task in `TASK_LOG.md`.
+- Always document each user prompt and task in `.agents/TASK_LOG.md`.
 - Record timestamp, objective, files changed, verification status, and git commit.
-- Keep `PROJECT_DOCUMENTATION.md` updated as features evolve.
+- Keep `.agents/PROJECT_DOCUMENTATION.md` updated as features evolve.
+
+## 6. Continuous `.agents/` Workflow & Memory Updates
+- Every AI agent MUST inspect the `.agents/` directory before writing code.
+- Continuously update `.agents/task.md` (check off completed items) and `.agents/memory.md` (update current state and feature registry) on every completed milestone.
+
 

@@ -14,7 +14,8 @@
 | **004** | 2026-10-13 03:33 | Create Platform Rulebooks (`AGENTS.md` & `.agents/rules/platform-rules.md`) | ✅ Completed | `a85125a` |
 | **006** | 2026-10-13 04:50 | Establish Mandatory Task Logging Protocol & `TASK_LOG.md` | ✅ Completed | `6815972` |
 | **007** | 2026-10-13 05:04 | Initialize 6 Core DDD Files (`prd.md`, `architecture.md`, etc.) | ✅ Completed | `55dc65d` |
-| **008** | 2026-10-13 05:10 | Relocate Documentation Files into `.agents/` Folder | ✅ Completed | Pending |
+| **008** | 2026-10-13 05:10 | Relocate Documentation Files into `.agents/` Folder | ✅ Completed | `af7eb36` |
+| **009** | 2026-10-13 05:16 | Codify Mandatory Continuous `.agents/` Synchronization & Updates | ✅ Completed | Pending |
 
 ---
 
@@ -130,6 +131,20 @@
     - `.agents/TASK_LOG.md`
   - Updated root `AGENTS.md` and `README.md` to reference `.agents/` paths.
 - **Verification**: Git status verified as clean renames; all files accessible in `.agents/`.
+- **Git Push**: Pushed commit `af7eb36` to `origin/main`.
 - **Status**: ✅ Completed
+
+---
+
+### Task #009: Codify Mandatory Continuous `.agents/` Synchronization & Updates
+- **Timestamp**: 2026-10-13 05:16 UTC
+- **User Prompt**: "i want the agents to always see the .agents folder aswell and keep following and updateing it as per requirement"
+- **Actions Taken**:
+  - Updated `AGENTS.md` with top-level `MANDATORY AGENT DIRECTIVE: Continuous .agents/ Synchronization`.
+  - Updated `.agents/rules/platform-rules.md` (always-on rule) with Section 6 enforcing pre-task `.agents/` inspection and continuous updates.
+  - Updated `.agents/AI_CODING_RULES.md` adding `Rule 0: Mandatory .agents/ Workflow & Continuous Memory Sync`.
+- **Verification**: All rulebooks aligned and cross-referenced.
+- **Status**: ✅ Completed
+
 
 
