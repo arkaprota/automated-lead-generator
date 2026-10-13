@@ -51,6 +51,11 @@ This document defines the strict architectural boundaries, code standards, and o
 ### Rule 7: Real Data Requirement
 - When developing or testing in any financial/stock related projects or workflows, always use real data sources.
 
+### Rule 8: Mandatory Task Logging & Progress Documentation
+- Every time a task is given to an AI agent or developer, it **MUST** be recorded in [TASK_LOG.md](TASK_LOG.md).
+- Each entry must record: Task #, UTC timestamp, User request objective, modified files, test results, and Git commit hash.
+- Keep [PROJECT_DOCUMENTATION.md](PROJECT_DOCUMENTATION.md) updated as platform features evolve.
+
 ---
 
 ## 🔄 Core Pipeline Invariants

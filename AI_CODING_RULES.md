@@ -97,12 +97,27 @@ The AI must maintain clean, modular folder conventions:
 
 ---
 
-## 🔄 Rule 10: AI Verification Checklist
+## 📝 Rule 10: Mandatory Task Logging & Progress Audit Trail
 
-Before reporting completion to the user, the AI must mentally verify:
+- **Document every assigned task**: For every prompt/instruction received from the user, the AI must log an entry in [`TASK_LOG.md`](TASK_LOG.md).
+- Each entry must include:
+  1. Task Number (sequential e.g. #001, #002...)
+  2. Timestamp (UTC)
+  3. User request objective
+  4. Actions taken and files created/modified
+  5. Test results and verification summary
+  6. Git commit hash
+- Keep [`PROJECT_DOCUMENTATION.md`](PROJECT_DOCUMENTATION.md) updated with platform progress and milestone completions.
+
+---
+
+## 🔄 Rule 11: AI Verification Checklist
+
+Before reporting completion to the user, the AI must verify:
 - [ ] Backend code is isolated from frontend?
 - [ ] Multi-tenant RLS context is respected?
 - [ ] Full test suite passes (`npm test`)?
 - [ ] TypeScript compiles cleanly on both workspaces (`tsc --noEmit`)?
 - [ ] Only the requested files were modified?
+- [ ] Task entry is recorded in [`TASK_LOG.md`](TASK_LOG.md)?
 - [ ] Documentation and git status are updated and committed?

@@ -22,3 +22,9 @@ description: Core platform guidelines, architectural boundaries, and coding stan
 ## 4. AI Structured Outputs
 - Always use structured JSON outputs when interacting with Google Gemini API.
 - Maintain resilient fallbacks so development and offline environments do not crash when external API keys are pending.
+
+## 5. Mandatory Task Logging & Progress Tracking
+- Always document each user prompt and task in `TASK_LOG.md`.
+- Record timestamp, objective, files changed, verification status, and git commit.
+- Keep `PROJECT_DOCUMENTATION.md` updated as features evolve.
+
