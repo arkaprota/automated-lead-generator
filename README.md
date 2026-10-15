@@ -25,6 +25,7 @@ All project specifications, architecture blueprints, rules, and task roadmaps ar
 - [`.agents/task.md`](.agents/task.md) — Phase 1 Sequential Execution Roadmap & Milestones
 - [`.agents/memory.md`](.agents/memory.md) — Active Project State, Completed Logs & Feature Registry
 - [`.agents/TASK_LOG.md`](.agents/TASK_LOG.md) — Immutable Audit Trail of Every Prompt & Task Executed
+- [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) — Complete Developer Onboarding, Local Setup & Workflow Guide
 
 ---
 
