@@ -48,6 +48,13 @@ export default function HomePage() {
             Launch Command Center
             <ArrowRight className="w-4 h-4" />
           </Link>
+          <Link
+            href="/events"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-slate-200 bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 transition-all transform hover:-translate-y-0.5"
+          >
+            Automated Search Events
+            <ArrowRight className="w-4 h-4 text-indigo-400" />
+          </Link>
         </div>
       </div>
 

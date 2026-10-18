@@ -1,11 +1,13 @@
 import { pgTable, text, varchar, integer, timestamp, uuid, jsonb, uniqueIndex, index } from 'drizzle-orm/pg-core';
 import { workspaces } from './workspaces.schema.js';
 import { campaigns } from './campaigns.schema.js';
+import { searchEvents } from './search-events.schema.js';
 
 export const leads = pgTable('leads', {
   id: uuid('id').defaultRandom().primaryKey(),
   workspaceId: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
   campaignId: uuid('campaign_id').references(() => campaigns.id, { onDelete: 'set null' }),
+  eventId: uuid('event_id').references(() => searchEvents.id, { onDelete: 'set null' }),
   businessName: varchar('business_name', { length: 255 }).notNull(),
   contactName: varchar('contact_name', { length: 255 }),
   email: varchar('email', { length: 255 }),
@@ -28,6 +30,7 @@ export const leads = pgTable('leads', {
   workspaceEmailIdx: uniqueIndex('idx_leads_workspace_email').on(table.workspaceId, table.email),
   workspaceIdIdx: index('idx_leads_workspace_id').on(table.workspaceId),
   campaignIdIdx: index('idx_leads_campaign_id').on(table.campaignId),
+  eventIdIdx: index('idx_leads_event_id').on(table.eventId),
   leadScoreIdx: index('idx_leads_lead_score').on(table.leadScore),
   qualificationStatusIdx: index('idx_leads_qualification_status').on(table.qualificationStatus),
 }));

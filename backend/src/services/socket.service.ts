@@ -68,4 +68,18 @@ export class SocketService {
       ioInstance.to(`workspace:${workspaceId}`).emit('lead:generation_progress', payload);
     }
   }
+
+  /**
+   * Emit search event update or scrape completion to workspace
+   */
+  static emitEventUpdated(
+    workspaceId: string,
+    payload: { eventId: string; status: string; totalLeadsFound: number; lastRunAt: string }
+  ): void {
+    if (ioInstance) {
+      ioInstance.to(`workspace:${workspaceId}`).emit('event:updated', payload);
+      console.log(`[Socket.io] Emitted event:updated to workspace:${workspaceId} for event ${payload.eventId}`);
+    }
+  }
 }
+

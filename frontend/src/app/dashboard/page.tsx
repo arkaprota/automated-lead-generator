@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import {
   Sparkles,
   Search,
@@ -14,6 +15,7 @@ import {
   Loader2,
   AlertCircle,
   ExternalLink,
+  CalendarSync,
 } from 'lucide-react';
 import { generateLeads, generateBrochure, simulateWebhookReply } from '@/lib/api';
 import { LiveNotificationToast } from '@/components/notifications/LiveNotificationToast';
@@ -130,13 +132,22 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <button
-          onClick={handleSimulateWebhook}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-xs text-white bg-slate-800 hover:bg-slate-700 border border-white/10 shadow transition-all self-start md:self-auto"
-        >
-          <Mail className="w-3.5 h-3.5 text-emerald-400" />
-          Test Positive Reply Webhook Loop
-        </button>
+        <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
+          <Link
+            href="/events"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-xs text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/30 transition-all"
+          >
+            <CalendarSync className="w-3.5 h-3.5" />
+            Automated Search Events (CRUD Table)
+          </Link>
+          <button
+            onClick={handleSimulateWebhook}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-xs text-white bg-slate-800 hover:bg-slate-700 border border-white/10 shadow transition-all"
+          >
+            <Mail className="w-3.5 h-3.5 text-emerald-400" />
+            Test Positive Reply Webhook Loop
+          </button>
+        </div>
       </div>
 
       {notificationStatus && (

@@ -4,6 +4,7 @@ export * from './sender-profiles.schema.js';
 export * from './campaigns.schema.js';
 export * from './leads.schema.js';
 export * from './email-events.schema.js';
+export * from './search-events.schema.js';
 export * from './ai-chat.schema.js';
 export * from './autopilot.schema.js';
 export * from './relations.js';

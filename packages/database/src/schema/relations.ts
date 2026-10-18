@@ -4,6 +4,7 @@ import { users, workspaceMembers } from './users.schema.js';
 import { senderProfiles } from './sender-profiles.schema.js';
 import { campaigns } from './campaigns.schema.js';
 import { leads } from './leads.schema.js';
+import { searchEvents } from './search-events.schema.js';
 import { emailEvents } from './email-events.schema.js';
 import { aiConversations, aiMessages } from './ai-chat.schema.js';
 import { autopilotRules, autopilotExecutions } from './autopilot.schema.js';
@@ -13,9 +14,15 @@ export const workspacesRelations = relations(workspaces, ({ many }) => ({
   senderProfiles: many(senderProfiles),
   campaigns: many(campaigns),
   leads: many(leads),
+  searchEvents: many(searchEvents),
   emailEvents: many(emailEvents),
   conversations: many(aiConversations),
   autopilotRules: many(autopilotRules),
+}));
+
+export const searchEventsRelations = relations(searchEvents, ({ one, many }) => ({
+  workspace: one(workspaces, { fields: [searchEvents.workspaceId], references: [workspaces.id] }),
+  leads: many(leads),
 }));
 
 export const campaignsRelations = relations(campaigns, ({ one, many }) => ({
@@ -28,6 +35,7 @@ export const campaignsRelations = relations(campaigns, ({ one, many }) => ({
 export const leadsRelations = relations(leads, ({ one, many }) => ({
   workspace: one(workspaces, { fields: [leads.workspaceId], references: [workspaces.id] }),
   campaign: one(campaigns, { fields: [leads.campaignId], references: [campaigns.id] }),
+  searchEvent: one(searchEvents, { fields: [leads.eventId], references: [searchEvents.id] }),
   emailEvents: many(emailEvents),
   autopilotExecutions: many(autopilotExecutions),
 }));

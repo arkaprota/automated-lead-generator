@@ -14,3 +14,6 @@ export function getSocketClient(): Socket {
   }
   return socket;
 }
+
+export const getSocket = getSocketClient;
+

@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS leads (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
     campaign_id UUID REFERENCES campaigns(id) ON DELETE SET NULL,
+    event_id UUID, -- References search_events(id) ON DELETE SET NULL
     business_name VARCHAR(255) NOT NULL,
     contact_name VARCHAR(255),
     email VARCHAR(255),
@@ -128,6 +129,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_leads_workspace_email
 -- Query performance indexes
 CREATE INDEX IF NOT EXISTS idx_leads_workspace_id ON leads(workspace_id);
 CREATE INDEX IF NOT EXISTS idx_leads_campaign_id ON leads(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_leads_event_id ON leads(event_id);
 CREATE INDEX IF NOT EXISTS idx_leads_lead_score ON leads(lead_score DESC);
 CREATE INDEX IF NOT EXISTS idx_leads_qualification_status ON leads(qualification_status);
 
@@ -157,6 +159,29 @@ CREATE INDEX IF NOT EXISTS idx_email_events_event_type ON email_events(event_typ
 CREATE INDEX IF NOT EXISTS idx_email_events_reply_intent ON email_events(reply_intent);
 
 -- ==============================================================================
+-- 5b. SEARCH EVENTS (Automated Recurring Lead Generation Queries)
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS search_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    schedule_cron VARCHAR(50) NOT NULL DEFAULT '0 9 * * *',
+    status VARCHAR(50) NOT NULL DEFAULT 'active', -- active, stopped, completed, failed
+    query_prompt TEXT,
+    total_leads_found INT NOT NULL DEFAULT 0,
+    last_run_at TIMESTAMPTZ,
+    next_run_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_search_events_workspace_id ON search_events(workspace_id);
+CREATE INDEX IF NOT EXISTS idx_search_events_status ON search_events(status);
+
+-- ==============================================================================
 -- 6. ROW-LEVEL SECURITY (RLS) POLICIES FOR MULTI-TENANT ISOLATION
 -- ==============================================================================
 
@@ -166,6 +191,7 @@ ALTER TABLE workspace_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sender_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE search_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE email_events ENABLE ROW LEVEL SECURITY;
 
 -- Helper condition: Current workspace matches session setting OR bypass is enabled
@@ -212,3 +238,11 @@ CREATE POLICY workspace_isolation_email_events ON email_events
         workspace_id = current_setting('app.current_workspace_id', true)
         OR current_setting('app.bypass_rls', true) = 'on'
     );
+
+-- Search Events Policy
+CREATE POLICY workspace_isolation_search_events ON search_events
+    USING (
+        workspace_id = current_setting('app.current_workspace_id', true)
+        OR current_setting('app.bypass_rls', true) = 'on'
+    );
+

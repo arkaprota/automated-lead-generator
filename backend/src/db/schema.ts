@@ -83,6 +83,7 @@ export const leads = pgTable('leads', {
   id: uuid('id').defaultRandom().primaryKey(),
   workspaceId: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
   campaignId: uuid('campaign_id').references(() => campaigns.id, { onDelete: 'set null' }),
+  eventId: uuid('event_id'),
   businessName: varchar('business_name', { length: 255 }).notNull(),
   contactName: varchar('contact_name', { length: 255 }),
   email: varchar('email', { length: 255 }),
@@ -105,6 +106,7 @@ export const leads = pgTable('leads', {
   workspaceEmailIdx: uniqueIndex('idx_leads_workspace_email').on(table.workspaceId, table.email),
   workspaceIdIdx: index('idx_leads_workspace_id').on(table.workspaceId),
   campaignIdIdx: index('idx_leads_campaign_id').on(table.campaignId),
+  eventIdIdx: index('idx_leads_event_id').on(table.eventId),
   leadScoreIdx: index('idx_leads_lead_score').on(table.leadScore),
   qualificationStatusIdx: index('idx_leads_qualification_status').on(table.qualificationStatus),
 }));
@@ -135,6 +137,29 @@ export const emailEvents = pgTable('email_events', {
 }));
 
 // ==============================================================================
+// 5b. SEARCH EVENTS
+// ==============================================================================
+
+export const searchEvents = pgTable('search_events', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  workspaceId: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  category: varchar('category', { length: 100 }).notNull(),
+  location: varchar('location', { length: 255 }).notNull(),
+  scheduleCron: varchar('schedule_cron', { length: 50 }).notNull().default('0 9 * * *'),
+  status: varchar('status', { length: 50 }).notNull().default('active'),
+  queryPrompt: text('query_prompt'),
+  totalLeadsFound: integer('total_leads_found').notNull().default(0),
+  lastRunAt: timestamp('last_run_at', { withTimezone: true }),
+  nextRunAt: timestamp('next_run_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => ({
+  workspaceIdIdx: index('idx_search_events_workspace_id').on(table.workspaceId),
+  statusIdx: index('idx_search_events_status').on(table.status),
+}));
+
+// ==============================================================================
 // RELATIONS
 // ==============================================================================
 
@@ -143,7 +168,13 @@ export const workspacesRelations = relations(workspaces, ({ many }) => ({
   senderProfiles: many(senderProfiles),
   campaigns: many(campaigns),
   leads: many(leads),
+  searchEvents: many(searchEvents),
   emailEvents: many(emailEvents),
+}));
+
+export const searchEventsRelations = relations(searchEvents, ({ one, many }) => ({
+  workspace: one(workspaces, { fields: [searchEvents.workspaceId], references: [workspaces.id] }),
+  leads: many(leads),
 }));
 
 export const campaignsRelations = relations(campaigns, ({ one, many }) => ({
@@ -156,6 +187,7 @@ export const campaignsRelations = relations(campaigns, ({ one, many }) => ({
 export const leadsRelations = relations(leads, ({ one, many }) => ({
   workspace: one(workspaces, { fields: [leads.workspaceId], references: [workspaces.id] }),
   campaign: one(campaigns, { fields: [leads.campaignId], references: [campaigns.id] }),
+  searchEvent: one(searchEvents, { fields: [leads.eventId], references: [searchEvents.id] }),
   emailEvents: many(emailEvents),
 }));
 

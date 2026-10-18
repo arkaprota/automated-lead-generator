@@ -15,6 +15,7 @@ export interface ILead {
   status: LeadStatus;
   qualificationReasons: string[];
   pdfBrochureUrl?: string | null;
+  eventId?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

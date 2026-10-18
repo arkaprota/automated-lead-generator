@@ -26,6 +26,8 @@
 | **#016** | 2026-10-13 12:04 | Phase 1.1: Monorepo Workspaces & Shared Packages Scaffolding | ✅ Completed | `7d1e050` |
 | **#017** | 2026-10-15 06:33 | Create Comprehensive DEVELOPER_GUIDE.md Documentation | ✅ Completed | `f8ddcaa` |
 | **#018** | 2026-10-18 08:35 | Automated Search Events Plan & Mandatory Plan Persistence Rule | ✅ Completed | `a842fd7` |
+| **#019** | 2026-10-18 08:52 | Build Automated Recurring Search Events, CRUD Table & Dedicated Leads Page | ✅ Completed | Pending |
+
 
 ---
 
@@ -280,5 +282,20 @@
 | **Verification** | `npm run typecheck` (0 errors across all 5 workspaces), `npm test` (Vitest 6/6 passing) |
 | **Git Commit** | `a842fd7` |
 | **Status** | ✅ Completed |
+
+---
+
+### Task #019: Build Automated Recurring Search Events, CRUD Table & Dedicated Leads Page
+
+| Property | Details |
+| :--- | :--- |
+| **Timestamp** | 2026-10-18 08:52 UTC |
+| **User Request** | "start" → Execute implementation plan for automated recurring search events, CRUD table dashboard, dedicated leads per event, and zero-duplicate invariant |
+| **Files Changed** | `packages/shared-types/*`, `packages/database/*`, `backend/src/db/schema.sql`, `backend/src/db/schema.ts`, `backend/src/services/event-scheduler.service.ts`, `backend/src/workers/event-scrape.worker.ts`, `backend/src/controllers/events.controller.ts`, `backend/src/routes/events.routes.ts`, `backend/src/routes/index.ts`, `backend/src/server.ts`, `backend/src/routes/__tests__/events.test.ts`, `frontend/src/lib/events.api.ts`, `frontend/src/components/navigation/Navbar.tsx`, `frontend/src/components/events/EventCreateModal.tsx`, `frontend/src/app/events/page.tsx`, `frontend/src/app/events/[id]/leads/page.tsx`, `frontend/src/app/dashboard/page.tsx`, `frontend/src/app/not-found.tsx`, `.agents/plans/automated-search-events.md`, `.agents/memory.md`, `.agents/TASK_LOG.md` |
+| **Key Decisions** | 1. Built single-responsibility EventStatus enum, Zod schema, and TypeScript interface in `@leadpilot/shared-types`.<br>2. Created `search_events` schema with RLS and added `event_id` foreign key with indexes on `leads` table.<br>3. Implemented `EventSchedulerService` and `EventScrapeWorker` utilizing BullMQ repeatable cron jobs.<br>4. Implemented full CRUD Express controllers & routes with Start/Stop toggle, Run Now trigger, and dedicated event leads endpoint.<br>5. Built responsive frontend CRUD table (`/events`), modal dialog (`EventCreateModal`), and dedicated leads view (`/events/:id/leads`) with zero-duplicate protection.<br>6. Updated `.agents/plans/automated-search-events.md` to COMPLETED. |
+| **Verification** | `npm test` passing 12/12 Vitest tests, `npm run typecheck` 0 errors across all workspaces, Next.js 15 production build successful (6 static/dynamic routes generated). |
+| **Git Commit** | Pending |
+| **Status** | ✅ Completed |
+
 
 

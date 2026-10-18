@@ -6,6 +6,7 @@ import apiRouter from './routes/index.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { SocketService } from './services/socket.service.js';
 import { QueueService } from './services/queue.service.js';
+import { EventScrapeWorker } from './workers/event-scrape.worker.js';
 
 export const app = express();
 export const server = http.createServer(app);
@@ -16,6 +17,7 @@ SocketService.init(server);
 // Initialize Background Workers in production or when enabled
 if (process.env.ENABLE_WORKER === 'true') {
   QueueService.initWorker();
+  EventScrapeWorker.initWorker();
 }
 
 // Middleware
