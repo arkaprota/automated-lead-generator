@@ -34,6 +34,7 @@ description: Core platform guidelines, architectural boundaries, and coding stan
 
 ## 7. Mandatory Implementation Plan & User Authorization
 - Always provide a clear, structured Implementation Plan before introducing any new feature or executing significant architectural changes.
+- **Mandatory File Persistence**: Every implementation plan MUST be saved to a dedicated Markdown file inside `.agents/plans/<feature-name>.md` and actively updated/edited as user requirements evolve or implementation progresses.
 - Detail the scope, affected files, schema/contract alterations, step-by-step execution path, and testing/validation strategy.
 - **NEVER begin coding or creating files until the user explicitly reviews and authorizes execution.**
 

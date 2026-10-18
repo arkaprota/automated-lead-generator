@@ -25,6 +25,7 @@
 | **#015** | 2026-10-13 11:47 | Transform `TASK_LOG.md` into Clear Multi-Table Layout | ✅ Completed | `b17f741` |
 | **#016** | 2026-10-13 12:04 | Phase 1.1: Monorepo Workspaces & Shared Packages Scaffolding | ✅ Completed | `7d1e050` |
 | **#017** | 2026-10-15 06:33 | Create Comprehensive DEVELOPER_GUIDE.md Documentation | ✅ Completed | `f8ddcaa` |
+| **#018** | 2026-10-18 08:35 | Automated Search Events Plan & Mandatory Plan Persistence Rule | ✅ Completed | Pending |
 
 ---
 
@@ -264,6 +265,20 @@
 | **Key Decisions** | 1. Created standalone `DEVELOPER_GUIDE.md` covering architecture, prerequisites, environment files, local startup commands, testing, coding standards, and troubleshooting.<br>2. Linked guide in `README.md` for instant visibility to new contributors on GitHub. |
 | **Verification** | Verified markdown formatting and links; `npm run typecheck` & `npm test` passing |
 | **Git Commit** | `f8ddcaa` |
+| **Status** | ✅ Completed |
+
+---
+
+### Task #018: Automated Search Events Plan & Mandatory Plan Persistence Rule
+
+| Property | Details |
+| :--- | :--- |
+| **Timestamp** | 2026-10-18 08:35 UTC |
+| **User Request** | "can we automate this like if we type resturant and location and it will search by that and save it in the database every time an event... always save the implementation plan in a md file and edit it asper needed" |
+| **Files Changed** | `AGENTS.md`, `.agents/rules.md`, `.agents/rules/platform-rules.md`, `.agents/plans/automated-search-events.md`, `.agents/TASK_LOG.md` |
+| **Key Decisions** | 1. Codified mandatory rule across all rulebooks (`AGENTS.md`, `.agents/rules.md`, `.agents/rules/platform-rules.md`): every implementation plan must be stored in `.agents/plans/<feature-name>.md` and actively updated as requirements change.<br>2. Authored full specification plan in `.agents/plans/automated-search-events.md` for automated recurring Google Maps search events, dedicated leads page (`/events/:id/leads`), start/stop toggles, and zero-duplicate database constraints.<br>3. Preserved strict barrier: waiting for explicit user authorization before coding. |
+| **Verification** | `npm run typecheck` (0 errors across all 5 workspaces), `npm test` (Vitest 6/6 passing) |
+| **Git Commit** | Pending |
 | **Status** | ✅ Completed |
 
 

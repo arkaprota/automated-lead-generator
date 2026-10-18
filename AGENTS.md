@@ -77,6 +77,7 @@ Every AI agent operating in this repository **MUST** unconditionally follow this
 
 ### Rule 9: Mandatory Implementation Plan & Explicit User Authorization Before Coding
 - **ALWAYS** construct and present a clear, structured **Implementation Plan** before adding a new feature or making significant architectural/code modifications.
+- **Mandatory File Persistence**: Every implementation plan **MUST** be saved as a dedicated Markdown document in `.agents/plans/<feature-name>.md` and continuously edited/updated as requirements evolve.
 - The plan must clearly outline:
   1. Scope and functional objectives
   2. Files to be created or modified (with dedicated, single-responsibility file paths)
