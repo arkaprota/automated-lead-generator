@@ -5,9 +5,13 @@ import { env } from './env.js';
 
 export const pool = new Pool({
   connectionString: env.DATABASE_URL,
-  ssl: env.DATABASE_URL.includes('neon.tech') ? { rejectUnauthorized: false } : false,
+  ssl: env.DATABASE_URL?.includes('neon.tech') ? { rejectUnauthorized: false } : false,
   max: 20,
   idleTimeoutMillis: 30000,
+});
+
+pool.on('error', (err) => {
+  console.warn('[PostgreSQL Pool Warning]', err.message);
 });
 
 export const db = drizzle(pool, { schema });

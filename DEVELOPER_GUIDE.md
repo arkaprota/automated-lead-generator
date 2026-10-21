@@ -110,13 +110,23 @@ NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
 
 ## 4. Installation & Setup
 
-From the **root of the repository**, run:
+Install dependencies for backend and frontend independently:
 
 ```bash
-npm install
+# Install backend dependencies
+cd backend && npm install
+
+# Install frontend dependencies
+cd ../frontend && npm install
 ```
 
-This single command installs all dependencies and automatically sets up npm workspace symlinks for `@leadpilot/shared-types`, `@leadpilot/utils`, and `@leadpilot/database`.
+Or from the root directory:
+```bash
+npm --prefix backend install
+npm --prefix frontend install
+```
+
+Both `/backend` and `/frontend` maintain their own self-contained `node_modules` and `package.json`.
 
 ---
 
@@ -147,10 +157,11 @@ Before committing any code or considering a task done, you **MUST** run all veri
 
 ```bash
 # 1. Run backend unit and integration test suite (Vitest)
-npm test
+npm run test
 
-# 2. Run TypeScript compiler checks across all 5 workspaces (Zero errors allowed)
-npm run typecheck
+# 2. Run TypeScript compiler checks for backend and frontend (Zero errors allowed)
+npm run typecheck:backend
+npm run typecheck:frontend
 ```
 
 Both commands must exit with code `0`. If any type error, lint warning, or failing test appears, resolve it immediately.
@@ -182,7 +193,6 @@ Every developer and AI agent working in this repo is bound by the rules in [`AGE
 
 | Issue | Cause | Fix |
 |---|---|---|
-| `Cannot find module '@leadpilot/...'` | Workspaces not linked | Run `npm install` from the root directory to refresh workspace symlinks. |
 | `Redis connection refused (127.0.0.1:6379)` | Local Redis is not running | Start Redis (`redis-server`) or update `REDIS_URL` in `backend/.env` with an Upstash connection string. |
 | `Neon RLS Permission Denied` | Missing `workspace_id` in context | Ensure all database operations wrap queries with `withTenantContext(workspaceId, ...)`. |
 | Port 5000 or 3000 already in use | Another process running | Kill the conflicting process or change the port in `.env` / Next.js flags (`PORT=3001 npm run dev:frontend`). |

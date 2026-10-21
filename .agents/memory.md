@@ -36,7 +36,7 @@
 | Feature Name | Module | Status | Notes / Dependencies |
 | :--- | :--- | :---: | :--- |
 | **Documentation-Driven Development Workflow** | Core / Docs | `COMPLETED` | Six core DDD files created in project root. |
-| **Multi-Tenant Monorepo Structure** | Infra / Monorepo | `COMPLETED` | 5 workspaces (`backend`, `frontend`, `shared-types`, `utils`, `database`) active. |
+| **Decoupled Independent Backend & Frontend Architecture** | Infra / Architecture | `COMPLETED` | Completely decoupled standalone `/backend` and `/frontend` codebases; root `packages/` and `node_modules/` eliminated; modular single-responsibility types inside each codebase. |
 | **Neon PostgreSQL Multi-Tenant RLS Schema** | Database | `IN_PROGRESS` | `schema.sql` created; pending final workspace migration sync. |
 | **Clerk Auth & Organization Synchronization** | Authentication | `PENDING` | Scheduled for Phase 1.3. |
 | **Express API Gateway & Error Handling** | Backend Core | `IN_PROGRESS` | Boilerplate operational; refactoring into structured `/apps/api`. |

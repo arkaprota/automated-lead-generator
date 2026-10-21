@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { EventsController } from '../controllers/events.controller.js';
 import { validateBody } from '../middleware/validator.middleware.js';
-import { CreateSearchEventSchema } from '@leadpilot/shared-types';
+import { CreateSearchEventSchema } from '../schemas/search-event.schema.js';
 
 const router = Router();
 

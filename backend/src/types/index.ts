@@ -69,3 +69,5 @@ export interface SocketEvents {
     qualifiedCount: number;
   };
 }
+
+export * from './search-event.interface.js';
