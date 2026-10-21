@@ -28,7 +28,7 @@
 | **#018** | 2026-10-18 08:35 | Automated Search Events Plan & Mandatory Plan Persistence Rule | ✅ Completed | `a842fd7` |
 | **#019** | 2026-10-18 08:52 | Build Automated Recurring Search Events, CRUD Table & Dedicated Leads Page | ✅ Completed | `f0bdbb8` |
 | **#020** | 2026-10-21 09:12 | Reinforce Strict Separate Backend and Frontend Code Rule Across Rulebooks | ✅ Completed | `e24859c` |
-| **#021** | 2026-10-21 09:22 | Unified Global Header Throughout All Website Pages | ✅ Completed | `f7da703` |
+| **#021** | 2026-10-21 09:22 | Unified Global Header Throughout All Website Pages | ✅ Completed | `b826008` |
 
 
 ---
@@ -324,7 +324,7 @@
 | **Files Changed** | `frontend/src/app/layout.tsx`, `frontend/src/components/navigation/Navbar.tsx`, `frontend/src/app/page.tsx`, `frontend/src/app/dashboard/page.tsx`, `frontend/src/app/events/page.tsx`, `frontend/src/app/events/[id]/leads/page.tsx`, `frontend/src/app/not-found.tsx`, `.agents/plans/unified-global-header.md`, `.agents/memory.md`, `.agents/TASK_LOG.md` |
 | **Key Decisions** | 1. Created and persisted implementation plan in `.agents/plans/unified-global-header.md`.<br>2. Mounted `<Navbar />` inside root `frontend/src/app/layout.tsx` so all current (`/`, `/dashboard`, `/events`, `/events/[id]/leads`, `/not-found`) and future routes automatically render the header.<br>3. Styled `Navbar.tsx` to match user screenshot: `LeadPilot AI` logo + gradient icon, `Instant Generator` (`/dashboard`), `Automated Search Events` (`/events`) with `CRUD` pill badge, `● Zero Duplicates Active` green status pill, and `ws_dev_default` tenant badge.<br>4. Dynamically detect active route with Next.js `usePathname()` for highlighted borders and text.<br>5. Surgically removed redundant manual `<Navbar />` and `<header>` tags across individual page components to eliminate duplicate headers or layout shift. |
 | **Verification** | `npm run typecheck` passed (0 errors across all 5 workspaces), `npm test` passed (12/12 Vitest tests), Next.js production build (`npm --workspace=frontend run build`) completed with 0 errors generating all 6 static & dynamic pages. |
-| **Git Commit** | `f7da703` |
+| **Git Commit** | `b826008` |
 | **Status** | ✅ Completed |
 
 
