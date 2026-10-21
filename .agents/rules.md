@@ -73,9 +73,11 @@ Every feature, fix, or code modification MUST follow this sequential 5-stage lif
 
 ## 3. Project Structure & Boundary Rules
 
-### 3.1 Strict Frontend / Backend Separation
-- **NEVER** import or execute backend services, database connections (`pg`, `neon`, `drizzle`), Redis/BullMQ queues, scraping scripts, Puppeteer, or server secrets (`CLERK_SECRET_KEY`, `GEMINI_API_KEY`, `DATABASE_URL`) inside the `/apps/web` (frontend) directory.
-- The frontend interacts with backend resources strictly via standard HTTP REST APIs (`/api/*`) and WebSocket events (`socket.io`).
+### 3.1 Always Have Separate Backend and Frontend Code (Strict Separation)
+- **Always Keep Codebases 100% Separate:** All backend server code, Express controllers, database connections (`pg`, `neon`, `drizzle`), Redis/BullMQ queues, scraping scripts, Puppeteer, and server secrets (`CLERK_SECRET_KEY`, `GEMINI_API_KEY`, `DATABASE_URL`) must reside exclusively in `/backend`.
+- **Zero Backend Code in Frontend:** **NEVER** import or execute backend services, direct DB queries, BullMQ queues, or server-only secrets inside the `/frontend` directory.
+- **REST & Socket Only:** The frontend interacts with backend resources strictly via standard HTTP REST APIs (`/api/*`) and WebSocket events (`socket.io`).
+- **No Cross-Imports:** `/backend` never imports from `/frontend`, and `/frontend` never imports from `/backend`. Both run as completely independent services.
 
 ### 3.2 Non-Blocking Event Loop Standard
 - **NEVER** run heavy or long-running synchronous operations on the main Express HTTP thread.

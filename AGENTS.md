@@ -35,9 +35,11 @@ Every AI agent operating in this repository **MUST** unconditionally follow this
 
 ## 📜 Core Platform Rules (Non-Negotiable)
 
-### Rule 1: Strict Frontend / Backend Separation
-- **NEVER** put backend code, database connections, Redis/queue clients, scraping utilities, Puppeteer instances, or server secrets (`CLERK_SECRET_KEY`, `GEMINI_API_KEY`, `DATABASE_URL`) inside the `/frontend` directory.
-- The frontend must communicate strictly via standard HTTP REST APIs (`/api/*`) or WebSocket events (`socket.io`).
+### Rule 1: Always Have Separate Backend and Frontend Code (Strict Separation)
+- **Always Keep Codebases 100% Separate**: All server logic, database connections, Redis/queue clients, scraping utilities, Puppeteer instances, and server secrets (`CLERK_SECRET_KEY`, `GEMINI_API_KEY`, `DATABASE_URL`) must reside **strictly inside `/backend`**.
+- **Zero Backend Code in Frontend**: **NEVER** put backend code, database connections, direct SQL/ORM queries, or server secrets inside the `/frontend` directory.
+- **Pure REST / WebSocket Contract**: The frontend must communicate with the backend strictly via standard HTTP REST APIs (`/api/*`) or WebSocket events (`socket.io`).
+- **No Cross-Pollution**: Backend never imports from `/frontend`, and frontend never imports from `/backend`. Both run as completely isolated services.
 
 ### Rule 2: Mandatory Testing & Zero-Error Policy
 - Always run full test suites (`npm --workspace=backend test`) and TypeScript checks (`tsc --noEmit`) before completing any task.

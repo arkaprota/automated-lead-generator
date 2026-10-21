@@ -5,10 +5,12 @@ description: Core platform guidelines, architectural boundaries, and coding stan
 
 # Lead Generation & Cold Email SaaS Platform Rules
 
-## 1. Architectural Boundaries
-- Keep `/frontend` and `/backend` strictly decoupled.
+## 1. Architectural Boundaries (Always Have Separate Backend and Frontend Code)
+- Keep `/frontend` and `/backend` strictly separated and decoupled.
+- All backend server logic, database connections, Redis/BullMQ queues, and server secrets must live exclusively in `/backend`.
 - Frontend must never import or execute backend services, direct DB queries, BullMQ queues, or server-only secrets.
-- All client-server communication must flow through `/api/*` endpoints and Socket.io events.
+- All client-server communication must flow strictly through `/api/*` REST endpoints and Socket.io events.
+- Never cross-import code between `/frontend` and `/backend`.
 
 ## 2. Multi-Tenancy & Security
 - Every SQL table must support multi-tenancy via `workspace_id`.

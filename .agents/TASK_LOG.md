@@ -27,6 +27,7 @@
 | **#017** | 2026-10-15 06:33 | Create Comprehensive DEVELOPER_GUIDE.md Documentation | ✅ Completed | `f8ddcaa` |
 | **#018** | 2026-10-18 08:35 | Automated Search Events Plan & Mandatory Plan Persistence Rule | ✅ Completed | `a842fd7` |
 | **#019** | 2026-10-18 08:52 | Build Automated Recurring Search Events, CRUD Table & Dedicated Leads Page | ✅ Completed | `f0bdbb8` |
+| **#020** | 2026-10-21 09:12 | Reinforce Strict Separate Backend and Frontend Code Rule Across Rulebooks | ✅ Completed | Pending |
 
 
 ---
@@ -296,6 +297,21 @@
 | **Verification** | `npm test` passing 12/12 Vitest tests, `npm run typecheck` 0 errors across all workspaces, Next.js 15 production build successful (6 static/dynamic routes generated). |
 | **Git Commit** | `f0bdbb8` |
 | **Status** | ✅ Completed |
+
+---
+
+### Task #020: Reinforce Strict Separate Backend and Frontend Code Rule Across Rulebooks
+
+| Property | Details |
+| :--- | :--- |
+| **Timestamp** | 2026-10-21 09:12 UTC |
+| **User Request** | "always have seperate backend and frontend code" |
+| **Files Changed** | `AGENTS.md`, `.agents/rules.md`, `.agents/rules/platform-rules.md`, `.agents/TASK_LOG.md` |
+| **Key Decisions** | 1. Verified complete codebase isolation: zero backend/database/queue imports in `/frontend`, zero UI/React imports in `/backend`.<br>2. Updated Rule 1 across all platform rulebooks (`AGENTS.md`, `.agents/rules.md`, `.agents/rules/platform-rules.md`) to explicitly mandate that backend and frontend code must always be kept strictly separate.<br>3. Reaffirmed pure REST/WebSocket communication interface with zero server secret leakage. |
+| **Verification** | Verified with ripgrep (0 cross-imports found), `npm test` 12/12 Vitest passing, `npm run typecheck` 0 errors across all workspaces. |
+| **Git Commit** | Pending |
+| **Status** | ✅ Completed |
+
 
 
 
