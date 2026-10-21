@@ -30,6 +30,7 @@
 | **#020** | 2026-10-21 09:12 | Reinforce Strict Separate Backend and Frontend Code Rule Across Rulebooks | ✅ Completed | `e24859c` |
 | **#021** | 2026-10-21 09:22 | Unified Global Header Throughout All Website Pages | ✅ Completed | `b826008` |
 | **#022** | 2026-10-21 09:53 | Separate Backend and Frontend Codebases, Delete Root Packages & Node Modules, Fix DB Pool Error Handling | ✅ Completed | `deb10d0` |
+| **#023** | 2026-10-21 10:12 | Add 'ms' Explicit Dependency & Clean Lockfile for Independent Backend | ✅ Completed | `0b6d11b` |
 
 
 ---
@@ -341,6 +342,21 @@
 | **Verification** | `npm --prefix backend run typecheck` passed (0 errors), `npm --prefix backend run build` passed (0 errors), `npm --prefix backend test` passed (12/12 Vitest tests), `npm --prefix frontend run typecheck` passed (0 errors), `npm --prefix frontend run build` Next.js 15 production build passed (6/6 static & dynamic pages generated cleanly with 0 errors). |
 | **Git Commit** | `deb10d0` |
 | **Status** | ✅ Completed |
+
+---
+
+### Task #023: Add 'ms' Explicit Dependency & Clean Lockfile for Independent Backend
+
+| Property | Details |
+| :--- | :--- |
+| **Timestamp** | 2026-10-21 10:12 UTC |
+| **User Request** | "Error: Cannot find module 'ms' ... Require stack: .../send/index.js ... fix this" |
+| **Files Changed** | `backend/package.json`, `backend/package-lock.json`, `.agents/TASK_LOG.md` |
+| **Key Decisions** | 1. Identified cause: in previous npm monorepo workspaces, transitive dependencies like `ms` (required by Express's `send` module) were hoisted to root `node_modules`. After decoupling, old cached runtime require paths or stale package-lock references lacked direct declaration.<br>2. Added `ms` (^2.1.3) directly to `backend/package.json` dependencies and `@types/ms` (^2.1.0) to devDependencies.<br>3. Ran `npm --prefix backend install` to regenerate `backend/package-lock.json` with `ms` explicitly resolved and installed directly in `backend/node_modules`.<br>4. Verified backend development server (`tsx watch src/server.ts`) boots cleanly without missing module errors. |
+| **Verification** | `npm --prefix backend run typecheck` passed (0 errors), `npm --prefix backend run build` passed (0 errors), `npm --prefix backend test` passed (12/12 Vitest tests), backend dev server verified booting on port 5000. |
+| **Git Commit** | `0b6d11b` |
+| **Status** | ✅ Completed |
+
 
 
 
