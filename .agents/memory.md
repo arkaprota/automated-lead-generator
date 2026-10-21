@@ -43,6 +43,7 @@
 | **Real-Time Socket.io Alert Engine** | Real-Time | `COMPLETED` | Room multiplexing (`workspace:<id>`) active with `lead:positive_reply` and `event:updated`. |
 | **Automated Search Events & CRUD Table** | Automation / Events | `COMPLETED` | Daily autonomous Google Maps search events with interactive CRUD table, start/stop toggle, and BullMQ cron repeat. |
 | **Dedicated Leads Per Event** | Lead Engine / Events | `COMPLETED` | `/events/:id/leads` dedicated view with zero-duplicate invariant (`UNIQUE(workspace_id, google_place_id)` & `website`). |
+| **Unified Global Header Navigation** | Frontend UI / Layout | `COMPLETED` | Sticky, unified header in root `layout.tsx` across all pages matching screenshot with active route styling, zero duplicates badge, and workspace indicator. |
 | **AI Demographic Query Expansion** | AI Engine / Leads | `COMPLETED` | Gemini structured 5-query expansion implemented with Zod validation. |
 | **Google Maps B2B Scraping Adapter** | Lead Engine | `IN_PROGRESS` | Deterministic mock engine active; external API client hook pending. |
 | **AI Lead Qualification & Hot Lead Flagging** | AI Engine / Leads | `COMPLETED` | Identifies `website: null` prospects, calculates 0–100 score. |

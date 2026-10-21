@@ -29,7 +29,7 @@ export function Navbar() {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="flex items-center gap-1 overflow-x-auto scrollbar-none py-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href || (item.href === '/events' && pathname?.startsWith('/events'));
@@ -37,16 +37,17 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  className={`flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
                     isActive
                       ? 'bg-indigo-600/15 text-indigo-400 border border-indigo-500/30 shadow-sm shadow-indigo-500/10'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
                   }`}
                 >
-                  <Icon className={`h-4 w-4 ${isActive ? 'text-indigo-400' : 'text-slate-500'}`} />
-                  {item.label}
+                  <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-indigo-400' : 'text-slate-500'}`} />
+                  <span className="hidden sm:inline">{item.label}</span>
+                  <span className="inline sm:hidden">{item.href === '/dashboard' ? 'Generator' : 'Events'}</span>
                   {item.href === '/events' && (
-                    <span className="ml-1 rounded-full bg-indigo-500/20 px-2 py-0.5 text-[10px] font-bold text-indigo-300 border border-indigo-500/30">
+                    <span className="ml-0.5 rounded-full bg-indigo-500/20 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-indigo-300 border border-indigo-500/30">
                       CRUD
                     </span>
                   )}

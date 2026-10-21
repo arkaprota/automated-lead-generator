@@ -1,7 +1,9 @@
 # Implementation Plan: Unified Global Header for All Pages
 
-> **Status:** Pending User Approval  
+> **Status:** COMPLETED (Verified & Tested)  
 > **Created:** 2026-10-21 08:55 UTC  
+> **Started:** 2026-10-21 09:16 UTC  
+> **Completed:** 2026-10-21 09:22 UTC  
 > **Feature:** Unified, responsive global header across all pages in LeadPilot AI.
 
 ---
@@ -10,7 +12,6 @@
 - **Global Header Mount**: Mount a unified, responsive header component directly inside `frontend/src/app/layout.tsx` so that **all pages** (`/`, `/dashboard`, `/events`, `/events/[id]/leads`, `/not-found`, and future routes) automatically display a consistent top navigation.
 - **Unified Navigation Items**:
   - **Brand Logo & Title**: LeadPilot AI (links to `/dashboard` or `/`).
-  - **Home**: Link to `/` (Landing & feature overview).
   - **Instant Generator**: Link to `/dashboard` (Instant AI demographic lead generator).
   - **Automated Search Events**: Link to `/events` (CRUD table & daily recurring scrapers with badge).
 - **Tenant & Safety Indicators**:
@@ -27,11 +28,13 @@ Following **Rule 5 (Single Responsibility Principle)** and **Rule 6 (Surgical Co
 
 | File Path | Responsibility & Planned Changes |
 | :--- | :--- |
-| `frontend/src/components/navigation/Navbar.tsx` | Enhance navigation links (Home `/`, Instant Generator `/dashboard`, Automated Search Events `/events`), active route highlighting, and responsive desktop/mobile layout. |
-| `frontend/src/app/layout.tsx` | Import and render `<Navbar />` above `{children}` so every route in the app automatically has the header. |
-| `frontend/src/app/page.tsx` | Remove the hardcoded redundant header element to prevent double headers on the landing page. |
-| `frontend/src/app/events/page.tsx` | Remove the manual `<Navbar />` call since it will now be provided globally by the root layout. |
-| `frontend/src/app/events/[id]/leads/page.tsx` | Remove the manual `<Navbar />` call since it will now be provided globally by the root layout. |
+| `frontend/src/components/navigation/Navbar.tsx` | Enhanced navigation links (Instant Generator `/dashboard`, Automated Search Events `/events`), active route highlighting, and responsive desktop/mobile layout matching user screenshot. |
+| `frontend/src/app/layout.tsx` | Imported and rendered `<Navbar />` above `{children}` so every route in the app automatically has the header. |
+| `frontend/src/app/page.tsx` | Removed the hardcoded redundant header element to prevent double headers on the landing page. |
+| `frontend/src/app/events/page.tsx` | Removed the manual `<Navbar />` call since it is now provided globally by the root layout. |
+| `frontend/src/app/events/[id]/leads/page.tsx` | Removed the manual `<Navbar />` call since it is now provided globally by the root layout. |
+| `frontend/src/app/dashboard/page.tsx` | Adjusted top padding container for clean layout fit under global header. |
+| `frontend/src/app/not-found.tsx` | Adjusted padding and removed redundant home link. |
 
 ---
 
@@ -43,19 +46,20 @@ Following **Rule 5 (Single Responsibility Principle)** and **Rule 6 (Surgical Co
 ## 4. Step-by-Step Execution Order
 
 1. **Step 1 (Navbar Enhancement)**:
-   - Update `frontend/src/components/navigation/Navbar.tsx` to include `Home` (`/`), `Instant Generator` (`/dashboard`), and `Automated Search Events` (`/events`) with dynamic route detection via `usePathname()`.
+   - [x] Update `frontend/src/components/navigation/Navbar.tsx` with screenshot design, `Instant Generator` (`/dashboard`), and `Automated Search Events` (`/events`) with dynamic route detection via `usePathname()`.
 2. **Step 2 (Root Layout Integration)**:
-   - Mount `<Navbar />` in `frontend/src/app/layout.tsx` inside the body wrapper.
+   - [x] Mount `<Navbar />` in `frontend/src/app/layout.tsx` inside the body wrapper.
 3. **Step 3 (Deduplication of Local Headers)**:
-   - Remove redundant local header in `frontend/src/app/page.tsx`.
-   - Remove redundant `<Navbar />` calls in `frontend/src/app/events/page.tsx` and `frontend/src/app/events/[id]/leads/page.tsx`.
+   - [x] Remove redundant local header in `frontend/src/app/page.tsx`.
+   - [x] Remove redundant `<Navbar />` calls in `frontend/src/app/events/page.tsx` and `frontend/src/app/events/[id]/leads/page.tsx`.
+   - [x] Clean padding in `frontend/src/app/dashboard/page.tsx` and `frontend/src/app/not-found.tsx`.
 4. **Step 4 (Verification & Testing)**:
-   - Run `npm run typecheck` across all workspaces to guarantee zero type errors.
-   - Run `npm test` across the monorepo to ensure full test suite passes.
-   - Run `npm --workspace=frontend run build` to verify Next.js compiles all pages cleanly.
+   - [x] Run `npm run typecheck` across all workspaces to guarantee zero type errors.
+   - [x] Run `npm test` across the monorepo to ensure full test suite passes.
+   - [x] Run `npm --workspace=frontend run build` to verify Next.js compiles all pages cleanly.
 5. **Step 5 (Documentation & Git Push)**:
-   - Update `.agents/task.md`, `.agents/memory.md`, and record Task #020 in `.agents/TASK_LOG.md`.
-   - Stage, commit, and push changes to GitHub `origin/main`.
+   - [x] Update `.agents/task.md`, `.agents/memory.md`, and record Task #021 in `.agents/TASK_LOG.md`.
+   - [x] Stage, commit, and push changes to GitHub `origin/main` (commit `f7da703`).
 
 ---
 

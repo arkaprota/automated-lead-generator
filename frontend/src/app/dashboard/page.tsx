@@ -109,7 +109,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen p-6 md:p-10 max-w-7xl mx-auto">
+    <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
       {/* Live Socket.io Toast Notification Listener */}
       <LiveNotificationToast workspaceId={workspaceId} />
 

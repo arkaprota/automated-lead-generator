@@ -26,7 +26,6 @@ import {
   type EventLeadItem,
   type SearchEventItem,
 } from '@/lib/events.api';
-import { Navbar } from '@/components/navigation/Navbar';
 
 export default function EventLeadsPage() {
   const params = useParams();
@@ -101,9 +100,7 @@ export default function EventLeadsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      <Navbar />
-
+    <div className="flex-1 w-full">
       {/* Toast */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border border-indigo-500/40 bg-slate-900/95 p-4 text-sm text-indigo-200 shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom-5">

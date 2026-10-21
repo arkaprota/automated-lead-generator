@@ -3,26 +3,7 @@ import { ArrowRight, Bot, Sparkles, Mail, FileText, Zap, ShieldCheck } from 'luc
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto">
-      {/* Top Navbar */}
-      <header className="flex items-center justify-between py-4">
-        <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-500 flex items-center justify-center font-bold text-white shadow-lg shadow-sky-500/20">
-            LP
-          </div>
-          <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-            LeadPilot AI
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <Link
-            href="/dashboard"
-            className="px-4 py-2 text-sm font-medium rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 transition-all"
-          >
-            Open Dashboard
-          </Link>
-        </div>
-      </header>
+    <div className="flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto">
 
       {/* Hero Section */}
       <div className="py-16 md:py-24 text-center max-w-3xl mx-auto">
@@ -96,6 +77,6 @@ export default function HomePage() {
         <div>PostgreSQL (Neon) with RLS • BullMQ & Redis • Google Gemini • Clerk Auth</div>
         <div className="mt-2 sm:mt-0">Production Monorepo Ready</div>
       </footer>
-    </main>
+    </div>
   );
 }
