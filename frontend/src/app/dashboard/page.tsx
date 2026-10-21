@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import {
   Sparkles,
   Search,
@@ -9,15 +8,13 @@ import {
   Flame,
   Globe,
   FileDown,
-  Mail,
   Send,
   CheckCircle,
   Loader2,
   AlertCircle,
   ExternalLink,
-  CalendarSync,
 } from 'lucide-react';
-import { generateLeads, generateBrochure, simulateWebhookReply } from '@/lib/api';
+import { generateLeads, generateBrochure } from '@/lib/api';
 import { LiveNotificationToast } from '@/components/notifications/LiveNotificationToast';
 
 interface LeadItem {
@@ -92,62 +89,27 @@ export default function DashboardPage() {
     }
   };
 
-  // Trigger Pipeline 3: Simulate Webhook Reply -> Gemini Classification -> Socket.io Alert
-  const handleSimulateWebhook = async () => {
-    setNotificationStatus('Triggering simulated positive reply webhook...');
-    try {
-      const res = await simulateWebhookReply({
-        workspaceId,
-        replyText: 'Hi Alex, I saw your proposal brochure. We definitely need a website overhaul this quarter. Are you available for a 15-minute call Thursday at 3 PM?',
-        leadId: leadsList[0]?.id,
-      });
-      setNotificationStatus(`Webhook caught! Gemini classified intent as "${res.intent}". Real-time Socket.io alert dispatched.`);
-      setTimeout(() => setNotificationStatus(null), 5000);
-    } catch (err: unknown) {
-      setNotificationStatus(`Failed to simulate webhook: ${(err as Error).message}`);
-    }
-  };
-
   return (
     <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
       {/* Live Socket.io Toast Notification Listener */}
       <LiveNotificationToast workspaceId={workspaceId} />
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between pb-8 border-b border-white/10 gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
-              Tenant: {workspaceId}
-            </span>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              RLS Isolation Active
-            </span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white mt-2">
-            Cold Outreach & Lead Generation Command Center
-          </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Autonomous multi-tenant pipeline orchestrator with Gemini, BullMQ, and Socket.io
-          </p>
+      <div className="pb-8 border-b border-white/10">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
+            Tenant: {workspaceId}
+          </span>
+          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            RLS Isolation Active
+          </span>
         </div>
-
-        <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
-          <Link
-            href="/events"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-xs text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/30 transition-all"
-          >
-            <CalendarSync className="w-3.5 h-3.5" />
-            Automated Search Events (CRUD Table)
-          </Link>
-          <button
-            onClick={handleSimulateWebhook}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-xs text-white bg-slate-800 hover:bg-slate-700 border border-white/10 shadow transition-all"
-          >
-            <Mail className="w-3.5 h-3.5 text-emerald-400" />
-            Test Positive Reply Webhook Loop
-          </button>
-        </div>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-white mt-2">
+          Cold Outreach & Lead Generation Command Center
+        </h1>
+        <p className="text-sm text-slate-400 mt-1">
+          Autonomous multi-tenant pipeline orchestrator with Gemini, BullMQ, and Socket.io
+        </p>
       </div>
 
       {notificationStatus && (
