@@ -27,6 +27,7 @@ import type {
   ReplyClassificationResponse,
   RawScrapedLead,
 } from '../types/index.js';
+import { ReplyIntent } from '../enums/reply-intent.enum.js';
 
 /** Max leads to score in a single batch request */
 const BATCH_SIZE = 10;
@@ -285,15 +286,15 @@ Return a JSON array of exactly ${leads.length} objects, one per lead in the same
   private static _heuristicClassify(text: string): ReplyClassificationResponse {
     const lower = text.toLowerCase();
     if (lower.includes('interested') || lower.includes('yes') || lower.includes('call') || lower.includes('demo') || lower.includes('quote')) {
-      return { intent: 'INTERESTED', confidence: 0.95, summary: 'Prospect expressed positive interest.', suggestedAction: 'Schedule follow-up call immediately.' };
+      return { intent: ReplyIntent.INTERESTED, confidence: 0.95, summary: 'Prospect expressed positive interest.', suggestedAction: 'Schedule follow-up call immediately.' };
     }
     if (lower.includes('unsubscribe') || lower.includes('not interested') || lower.includes('remove') || lower.includes('stop')) {
-      return { intent: 'NOT_INTERESTED', confidence: 0.98, summary: 'Prospect requested removal.', suggestedAction: 'Unsubscribe lead from future campaigns.' };
+      return { intent: ReplyIntent.NOT_INTERESTED, confidence: 0.98, summary: 'Prospect requested removal.', suggestedAction: 'Unsubscribe lead from future campaigns.' };
     }
     if (lower.includes('?') || lower.includes('how much') || lower.includes('pricing') || lower.includes('what')) {
-      return { intent: 'QUESTION', confidence: 0.88, summary: 'Prospect has a clarifying question.', suggestedAction: 'Answer question and provide scheduling link.' };
+      return { intent: ReplyIntent.QUESTION, confidence: 0.88, summary: 'Prospect has a clarifying question.', suggestedAction: 'Answer question and provide scheduling link.' };
     }
-    return { intent: 'NEUTRAL', confidence: 0.7, summary: 'General or unclassified response.', suggestedAction: 'Review email manually.' };
+    return { intent: ReplyIntent.NEUTRAL, confidence: 0.7, summary: 'General or unclassified response.', suggestedAction: 'Review email manually.' };
   }
 
   private static _scoringPrompt(lead: RawScrapedLead): string {

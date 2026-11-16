@@ -34,6 +34,7 @@
 | **#024** | 2026-10-21 10:16 | Remove Redundant In-Page Header Buttons from Dashboard View | ✅ Completed | `ac0a27d` |
 | **#025** | 2026-11-16 11:22 | Add Rule 12 Minimum Token Usage to AGENTS.md & rules.md | ✅ Completed | `1865ed6` |
 | **#026** | 2026-11-16 17:18 | Multi-LLM Provider Selection (Gemini / Claude / OpenAI) per Workspace | ✅ Completed | `e1fc6c4` |
+| **#027** | 2026-11-16 17:31 | SRP File Structure Clean-up: Backend type split, kebab-case rename, frontend type dedup, secret removal | ✅ Completed | pending push |
 
 
 ---
@@ -391,5 +392,29 @@
 | **Files Changed** | `AGENTS.md` (Rule 12), `.agents/rules.md` (§2.2.1), `.agents/plans/multi-llm-provider-selection.md` (new, §6b token measures), `.agents/TASK_LOG.md` |
 | **Key Decisions** | 1. Added Rule 12 (Minimum Token Usage) covering platform LLM calls and AI agents working on the repo.<br>2. Multi-LLM feature plan saved; provider is selected per workspace from the UI and can be changed anytime.<br>3. Feature code NOT started — plan awaits explicit user approval (Rule 9). |
 | **Verification** | Documentation-only change; no code modified, test suite not affected. |
-| **Git Commit** | Pending |
-| **Status** | 📝 Plan pending approval |
+| **Git Commit** | `1865ed6` |
+| **Status** | ✅ Completed |
+
+### Task #026: Multi-LLM Provider Selection (Gemini / Claude / OpenAI) per Workspace
+
+| Property | Details |
+| :--- | :--- |
+| **Timestamp** | 2026-11-16 17:18 UTC |
+| **User Request** | "see i want to add onemore thing i can choose between all gemini, claude and chatgpt for this task instead of gemini only" |
+| **Files Changed** | 40+ files across backend and frontend — full list in `.agents/plans/multi-llm-provider-selection.md` |
+| **Key Decisions** | 1. Single `LlmClient` interface with Gemini, Claude, OpenAI adapters behind a factory.<br>2. Per-workspace `ai_provider` column; selector dropdown in Navbar applies immediately including to scheduled events.<br>3. Rule 12 token efficiency: heuristic shortcuts, batch scoring ≤10/req, Redis cache 24h (400ms timeout guard), reply text cleaning, per-task `maxOutputTokens`. |
+| **Verification** | Backend 12/12 tests passing; `tsc --noEmit` 0 errors (backend + frontend). |
+| **Git Commit** | `e1fc6c4` |
+| **Status** | ✅ Completed |
+
+### Task #027: SRP File Structure Clean-up
+
+| Property | Details |
+| :--- | :--- |
+| **Timestamp** | 2026-11-16 17:31 UTC |
+| **User Request** | "proceed with the implementation plan" (`.agents/plans/correct-file-folder-structure.md`) |
+| **Files Changed** | `backend/src/types/` (7 new interface files + barrel), `backend/src/services/lead-scraper.service.ts` (renamed from `leadScraper.service.ts`), `backend/src/services/event-scheduler.service.ts`, `backend/src/routes/leads.routes.ts`, `backend/src/services/ai.service.ts`, `backend/src/services/gemini.service.ts`, `backend/src/schemas/ai/reply-classification.schema.ts`, `frontend/src/types/` (3 new interface files + updated barrel), `frontend/src/lib/events.api.ts`, `frontend/.env.example`, `.claude/agents/claude-api.md`, `.agents/plans/correct-file-folder-structure.md`, `.agents/TASK_LOG.md`, `.agents/memory.md` |
+| **Key Decisions** | 1. Split `backend/src/types/index.ts` monolith into 7 single-responsibility interface files.<br>2. `git mv` rename to `lead-scraper.service.ts` for kebab-case consistency.<br>3. Split `frontend/src/types/events.interface.ts` into 3 dedicated files; removed duplicate declarations in `events.api.ts`.<br>4. `CLERK_SECRET_KEY` removed from `frontend/.env.example` (Rule 1 boundary).<br>5. Switched `replyClassificationSchema` to `z.nativeEnum(ReplyIntent)` to align Zod output with the existing enum type. |
+| **Verification** | Backend 12/12 Vitest tests passing; `tsc --noEmit` 0 errors (backend + frontend). |
+| **Git Commit** | pending push |
+| **Status** | ✅ Completed |

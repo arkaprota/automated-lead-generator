@@ -5,7 +5,7 @@ import { searchEvents, leads } from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 import { AiService } from './ai.service.js';
 import { WorkspaceAiProviderService } from './workspace-ai-provider.service.js';
-import { LeadScraperService } from './leadScraper.service.js';
+import { LeadScraperService } from './lead-scraper.service.js';
 import { SocketService } from './socket.service.js';
 
 export interface SearchEventJobData {

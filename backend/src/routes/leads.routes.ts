@@ -4,7 +4,7 @@ import type { AuthenticatedRequest } from '../types/index.js';
 import { validateBody } from '../middleware/validator.middleware.js';
 import { AiService } from '../services/ai.service.js';
 import { WorkspaceAiProviderService } from '../services/workspace-ai-provider.service.js';
-import { LeadScraperService } from '../services/leadScraper.service.js';
+import { LeadScraperService } from '../services/lead-scraper.service.js';
 import { SocketService } from '../services/socket.service.js';
 import { withTenantContext } from '../config/db.js';
 import { leads } from '../db/schema.js';

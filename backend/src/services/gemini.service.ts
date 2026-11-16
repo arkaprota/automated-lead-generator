@@ -7,6 +7,7 @@ import type {
   ReplyClassificationResponse,
   RawScrapedLead,
 } from '../types/index.js';
+import { ReplyIntent } from '../enums/reply-intent.enum.js';
 
 export class GeminiService {
   /**
@@ -205,7 +206,7 @@ Return ONLY a valid JSON object matching this schema:
       const lower = emailReplyText.toLowerCase();
       if (lower.includes('interested') || lower.includes('yes') || lower.includes('call') || lower.includes('demo') || lower.includes('quote')) {
         return {
-          intent: 'INTERESTED',
+          intent: ReplyIntent.INTERESTED,
           confidence: 0.95,
           summary: 'Prospect expressed positive interest or requested a meeting/pricing.',
           suggestedAction: 'Schedule follow-up call immediately.',
@@ -213,7 +214,7 @@ Return ONLY a valid JSON object matching this schema:
       }
       if (lower.includes('unsubscribe') || lower.includes('not interested') || lower.includes('remove') || lower.includes('stop')) {
         return {
-          intent: 'NOT_INTERESTED',
+          intent: ReplyIntent.NOT_INTERESTED,
           confidence: 0.98,
           summary: 'Prospect requested removal or declined services.',
           suggestedAction: 'Unsubscribe lead from future campaigns.',
@@ -221,14 +222,14 @@ Return ONLY a valid JSON object matching this schema:
       }
       if (lower.includes('?') || lower.includes('how much') || lower.includes('pricing') || lower.includes('what')) {
         return {
-          intent: 'QUESTION',
+          intent: ReplyIntent.QUESTION,
           confidence: 0.88,
           summary: 'Prospect has a clarifying question.',
           suggestedAction: 'Answer question and provide direct scheduling link.',
         };
       }
       return {
-        intent: 'NEUTRAL',
+        intent: ReplyIntent.NEUTRAL,
         confidence: 0.7,
         summary: 'General or unclassified response.',
         suggestedAction: 'Review email manually.',
@@ -269,7 +270,7 @@ Return ONLY a valid JSON object matching this schema:
     } catch (error) {
       console.warn('[GeminiService] Reply classification error:', error);
       return {
-        intent: 'NEUTRAL',
+        intent: ReplyIntent.NEUTRAL,
         confidence: 0.5,
         summary: 'Failed to classify automatically.',
         suggestedAction: 'Review reply manually.',
