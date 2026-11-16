@@ -62,6 +62,19 @@ Every feature, fix, or code modification MUST follow this sequential 5-stage lif
 - **Environment Variables:** `src/config/env.ts` must validate process environment variables on startup and fail fast if required secrets are absent.
 - **AI Structured Outputs:** Every call to Google Gemini requesting JSON must enforce a Zod schema to guarantee parsing integrity.
 
+### 2.2.1 Minimum Token Usage (AI Cost Discipline)
+Mandatory for every LLM call (Gemini, Claude, OpenAI). Full text: `AGENTS.md` → Rule 12.
+- **Code before AI:** deterministic rules first; the LLM only for genuine judgment.
+- **Dedupe before AI:** skip leads that already exist in the workspace before scoring.
+- **Batch:** score many leads per request, never one request per lead.
+- **Lean prompts:** only needed fields; no inline JSON schema when the provider enforces it natively.
+- **Cap output:** explicit per-task max output tokens on every call.
+- **Lowest sufficient effort:** minimum reasoning/thinking for extraction and classification.
+- **Trim inputs:** strip quoted history, signatures, HTML; never send `rawMetadata`.
+- **Cache:** reuse identical-input results per workspace via Redis TTL.
+- **Bounded retries:** max one retry, then heuristic fallback.
+- **Measure:** log token usage per call (provider, task, workspace).
+
 ### 2.3 Express Architecture Pattern
 - Follow the **Controller-Service-Repository** pattern:
   - `routes/`: Routing definition and middleware mounting.

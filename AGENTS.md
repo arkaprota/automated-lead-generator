@@ -100,6 +100,26 @@ Every feature, bugfix, or code change MUST follow this strict 5-stage sequential
 - These rules and guidelines apply unconditionally to **EVERY AI agent, human developer, and future contributor** operating in this repository.
 - Every contributor MUST read and follow `.agents/` and `AGENTS.md`. No developer or agent is permitted to bypass these rules under any circumstance.
 
+### Rule 12: Minimum Token Usage (AI Cost Discipline)
+Applies to every LLM call the platform makes (Gemini, Claude, OpenAI) **and** to AI agents working on this repo.
+
+**A. Platform AI calls (`/backend`)**
+1. **No AI when code can decide**: Use deterministic logic first (e.g. null website ➡️ Hot Lead, keyword filters). Call the LLM only for what genuinely needs judgment.
+2. **Dedupe before AI**: Check `(workspace_id, google_place_id)` / `(workspace_id, website)` against existing leads **before** scoring. Never spend tokens on a lead that `.onConflictDoNothing()` will discard.
+3. **Batch, don't loop**: Score/qualify leads in batches (one request for many leads) instead of one request per lead.
+4. **Lean prompts**: Send only the fields the task needs. No filler, no repeated instructions. When the provider enforces a JSON schema natively, do not also paste the schema into the prompt text.
+5. **Cap output**: Every call sets an explicit per-task max output token limit sized to the expected JSON (no unbounded responses).
+6. **Lowest sufficient reasoning effort**: Simple extraction/classification tasks run at the lowest effort/thinking setting the provider offers; raise it only where measured quality requires it.
+7. **Trim inputs**: Strip quoted email history, signatures, and HTML from replies before classification; never send raw scraped blobs (`rawMetadata`) to the LLM.
+8. **Cache repeat work**: Reuse results for identical inputs within a workspace (e.g. query expansion for the same demographic) via Redis with a TTL.
+9. **Bounded retries**: At most one retry on transient errors, then the heuristic fallback. Never retry on invalid output in a loop.
+10. **Measure**: Log input/output token usage per call (provider, task, workspace) so spend is visible.
+
+**B. AI agents working on this repository**
+1. Read only the `.agents/` files and source files relevant to the current task; use targeted search and partial reads over whole-file dumps.
+2. Make surgical edits (Rule 6) instead of rewriting files; do not re-read files that were just written.
+3. Keep plans, logs, and replies concise; do not repeat content already recorded elsewhere — link to it.
+
 - The 6 Core Documentation-Driven Development (DDD) files are housed in the [`.agents/`](.agents/) directory:
   - [`.agents/prd.md`](.agents/prd.md)
   - [`.agents/architecture.md`](.agents/architecture.md)

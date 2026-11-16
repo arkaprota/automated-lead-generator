@@ -379,3 +379,15 @@
 
 
 
+
+### Task #025: Add Minimum Token Usage Rule & Multi-LLM Provider Plan
+
+| Property | Details |
+| :--- | :--- |
+| **Timestamp** | 2026-11-16 UTC |
+| **User Request** | "i can choose between all gemini, claude and chatgpt for this task instead of gemini only" + "user will select which ai needed to be used for that and can change it anytime" + "add a rule so that minimum usages of token can be done" |
+| **Files Changed** | `AGENTS.md` (Rule 12), `.agents/rules.md` (§2.2.1), `.agents/plans/multi-llm-provider-selection.md` (new, §6b token measures), `.agents/TASK_LOG.md` |
+| **Key Decisions** | 1. Added Rule 12 (Minimum Token Usage) covering platform LLM calls and AI agents working on the repo.<br>2. Multi-LLM feature plan saved; provider is selected per workspace from the UI and can be changed anytime.<br>3. Feature code NOT started — plan awaits explicit user approval (Rule 9). |
+| **Verification** | Documentation-only change; no code modified, test suite not affected. |
+| **Git Commit** | Pending |
+| **Status** | 📝 Plan pending approval |
