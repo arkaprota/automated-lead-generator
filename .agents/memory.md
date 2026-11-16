@@ -44,10 +44,11 @@
 | **Automated Search Events & CRUD Table** | Automation / Events | `COMPLETED` | Daily autonomous Google Maps search events with interactive CRUD table, start/stop toggle, and BullMQ cron repeat. |
 | **Dedicated Leads Per Event** | Lead Engine / Events | `COMPLETED` | `/events/:id/leads` dedicated view with zero-duplicate invariant (`UNIQUE(workspace_id, google_place_id)` & `website`). |
 | **Unified Global Header Navigation** | Frontend UI / Layout | `COMPLETED` | Sticky, unified header in root `layout.tsx` across all pages matching screenshot with active route styling, zero duplicates badge, and workspace indicator. |
-| **AI Demographic Query Expansion** | AI Engine / Leads | `COMPLETED` | Gemini structured 5-query expansion implemented with Zod validation. |
+| **Multi-LLM Provider Selection** | AI Engine / Config | `COMPLETED` | Per-workspace Gemini / Claude / OpenAI selector. Single `LlmClient` interface, 3 adapters, `AiProviderSelector` dropdown in Navbar. Rule 12 token efficiency: heuristic shortcuts, batch scoring, Redis cache (24h TTL, 400ms timeout guard), reply text cleaning, per-task `maxOutputTokens`. |
+| **AI Demographic Query Expansion** | AI Engine / Leads | `COMPLETED` | Multi-provider structured 5-query expansion; Redis-cached per workspace (24h). |
 | **Google Maps B2B Scraping Adapter** | Lead Engine | `IN_PROGRESS` | Deterministic mock engine active; external API client hook pending. |
-| **AI Lead Qualification & Hot Lead Flagging** | AI Engine / Leads | `COMPLETED` | Identifies `website: null` prospects, calculates 0–100 score. |
-| **Personalized AI Pitch Synthesis** | AI Engine / Brochure | `COMPLETED` | Gemini JSON pitch generator (pain points, ROI, solution) active. |
+| **AI Lead Qualification & Hot Lead Flagging** | AI Engine / Leads | `COMPLETED` | Heuristic shortcut for `website: null` (no LLM); batch scoring ≤10 leads/request; 0–100 score. |
+| **Personalized AI Pitch Synthesis** | AI Engine / Brochure | `COMPLETED` | Multi-provider JSON pitch generator (pain points, ROI, solution) active. |
 | **EJS / Puppeteer PDF Brochure Rendering** | Brochure Engine | `COMPLETED` | Pixel-perfect A4 template compilation with headless PDF generation. |
 | **BullMQ Fair-Share Outreach Queue** | Queue & Workers | `COMPLETED` | Upstash Redis connection + round-robin multi-tenant queue setup. |
 | **Inbound Webhook Reply Parser** | Webhooks / Inbound | `COMPLETED` | Catches replies, classifies intent (`INTERESTED`, `QUESTION`, etc.). |

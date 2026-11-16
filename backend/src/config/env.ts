@@ -9,7 +9,16 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().default('http://localhost:3000'),
   DATABASE_URL: z.string().optional().default('postgresql://postgres:postgres@localhost:5432/leads_dev'),
   REDIS_URL: z.string().optional().default('redis://localhost:6379'),
+  // AI Provider keys
   GEMINI_API_KEY: z.string().optional().default(''),
+  ANTHROPIC_API_KEY: z.string().optional().default(''),
+  OPENAI_API_KEY: z.string().optional().default(''),
+  // AI model overrides
+  GEMINI_MODEL: z.string().optional().default('gemini-2.5-flash'),
+  CLAUDE_MODEL: z.string().optional().default('claude-opus-5-5'),
+  OPENAI_MODEL: z.string().optional().default('gpt-4o-mini'),
+  // Default provider used when workspace has no choice stored yet
+  LLM_PROVIDER: z.enum(['gemini', 'claude', 'openai']).optional().default('gemini'),
   CLERK_SECRET_KEY: z.string().optional().default(''),
   CLERK_PUBLISHABLE_KEY: z.string().optional().default(''),
   SCRAPER_API_KEY: z.string().optional().default(''),

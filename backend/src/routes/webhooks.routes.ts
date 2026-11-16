@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
-import { GeminiService } from '../services/gemini.service.js';
+import { AiService } from '../services/ai.service.js';
 import { SocketService } from '../services/socket.service.js';
 import { withTenantContext } from '../config/db.js';
 import { emailEvents, leads } from '../db/schema.js';
@@ -38,8 +38,8 @@ router.post('/email-replies', async (req: Request, res: Response): Promise<void>
 
     const { workspaceId, campaignId, leadId, messageId, replyText, rawPayload } = parseResult.data;
 
-    // 1. Send raw reply text to Gemini for Intent Classification
-    const classification = await GeminiService.classifyReplyIntent(replyText);
+    // 1. Classify reply intent via the workspace's chosen AI provider
+    const classification = await AiService.classifyReplyIntent(replyText);
 
     // 2. Fetch Lead business details for notification context
     let businessName = 'Valued Prospect';

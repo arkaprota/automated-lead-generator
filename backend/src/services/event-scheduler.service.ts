@@ -3,7 +3,8 @@ import { getRedisClient } from '../config/redis.js';
 import { withTenantContext } from '../config/db.js';
 import { searchEvents, leads } from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
-import { GeminiService } from './gemini.service.js';
+import { AiService } from './ai.service.js';
+import { WorkspaceAiProviderService } from './workspace-ai-provider.service.js';
 import { LeadScraperService } from './leadScraper.service.js';
 import { SocketService } from './socket.service.js';
 
@@ -146,26 +147,40 @@ export class EventSchedulerService {
       return { totalScraped: 0, newLeadsSaved: 0, status: 'stopped' };
     }
 
+    // Resolve the workspace's chosen AI provider (checked each run so switching takes effect)
+    const provider = await WorkspaceAiProviderService.getProvider(workspaceId);
+
     // Step A: Translate event category & location into targeted search queries
     const prompt = targetEvent.queryPrompt || `${targetEvent.category} businesses in ${targetEvent.location}`;
-    let searchQueries: string[] = [];
-    try {
-      searchQueries = await GeminiService.expandTargetDemographic(prompt);
-    } catch (err) {
-      searchQueries = [
-        `${targetEvent.category} in ${targetEvent.location}`,
-        `top rated ${targetEvent.category} ${targetEvent.location}`,
-        `best ${targetEvent.category} services in ${targetEvent.location}`,
-      ];
-    }
+    const searchQueries = await AiService.expandTargetDemographic(prompt, provider, workspaceId);
 
     // Step B: Scrape Google Maps data
     const rawLeads = await LeadScraperService.scrapeGoogleMaps(searchQueries, 3);
 
-    // Step C: Score and Qualify leads with Gemini
+    // Step C: Dedup against existing event leads BEFORE scoring (Rule 12 — no wasted tokens)
+    const rawExisting = await withTenantContext(workspaceId, async (tenantDb) =>
+      tenantDb.select({ googlePlaceId: leads.googlePlaceId, website: leads.website }).from(leads)
+        .where(and(eq(leads.workspaceId, workspaceId), eq(leads.eventId, eventId)))
+    ).catch(() => []);
+    const existing = Array.isArray(rawExisting)
+      ? (rawExisting as { googlePlaceId: string | null; website: string | null }[])
+      : [];
+
+    const existingPlaceIds = new Set(existing.map((r) => r.googlePlaceId).filter(Boolean) as string[]);
+    const existingWebsites = new Set(existing.map((r) => r.website).filter(Boolean) as string[]);
+    const newRawLeads = rawLeads.filter((raw) => {
+      if (raw.googlePlaceId && existingPlaceIds.has(raw.googlePlaceId)) return false;
+      if (raw.website && existingWebsites.has(raw.website)) return false;
+      return true;
+    });
+
+    // Score in batches (Rule 12 — batch, up to 10 leads per request)
+    const qualifications = await AiService.scoreAndQualifyLeadsBatch(newRawLeads, provider);
+
     const processedLeads: (typeof leads.$inferInsert)[] = [];
-    for (const raw of rawLeads) {
-      const qualification = await GeminiService.scoreAndQualifyLead(raw);
+    for (let i = 0; i < newRawLeads.length; i++) {
+      const raw = newRawLeads[i];
+      const qualification = qualifications[i];
       processedLeads.push({
         workspaceId,
         eventId,

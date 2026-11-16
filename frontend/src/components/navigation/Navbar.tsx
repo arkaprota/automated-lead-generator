@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sparkles, CalendarSync, LayoutDashboard, Database, Activity } from 'lucide-react';
+import { AiProviderSelector } from './AiProviderSelector.js';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -58,6 +59,8 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
+          <AiProviderSelector />
+
           <div className="hidden sm:flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>Zero Duplicates Active</span>

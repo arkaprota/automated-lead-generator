@@ -71,3 +71,5 @@ export interface SocketEvents {
 }
 
 export * from './search-event.interface.js';
+export * from './llm-client.interface.js';
+export * from './llm-json-task.interface.js';

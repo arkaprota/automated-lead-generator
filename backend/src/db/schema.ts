@@ -12,6 +12,7 @@ export const workspaces = pgTable('workspaces', {
   ownerUserId: text('owner_user_id').notNull(),
   plan: varchar('plan', { length: 50 }).notNull().default('starter'),
   creditsRemaining: integer('credits_remaining').notNull().default(500),
+  aiProvider: varchar('ai_provider', { length: 20 }).notNull().default('gemini'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

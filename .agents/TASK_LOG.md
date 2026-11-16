@@ -32,6 +32,8 @@
 | **#022** | 2026-10-21 09:53 | Separate Backend and Frontend Codebases, Delete Root Packages & Node Modules, Fix DB Pool Error Handling | ✅ Completed | `deb10d0` |
 | **#023** | 2026-10-21 10:12 | Add 'ms' Explicit Dependency & Clean Lockfile for Independent Backend | ✅ Completed | `0b6d11b` |
 | **#024** | 2026-10-21 10:16 | Remove Redundant In-Page Header Buttons from Dashboard View | ✅ Completed | `ac0a27d` |
+| **#025** | 2026-11-16 11:22 | Add Rule 12 Minimum Token Usage to AGENTS.md & rules.md | ✅ Completed | `1865ed6` |
+| **#026** | 2026-11-16 17:18 | Multi-LLM Provider Selection (Gemini / Claude / OpenAI) per Workspace | ✅ Completed | pending push |
 
 
 ---

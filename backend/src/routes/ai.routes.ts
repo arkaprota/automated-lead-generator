@@ -2,7 +2,8 @@ import { Router, type Response } from 'express';
 import { z } from 'zod';
 import type { AuthenticatedRequest } from '../types/index.js';
 import { validateBody } from '../middleware/validator.middleware.js';
-import { GeminiService } from '../services/gemini.service.js';
+import { AiService } from '../services/ai.service.js';
+import { WorkspaceAiProviderService } from '../services/workspace-ai-provider.service.js';
 import { BrochureService } from '../services/brochure.service.js';
 import { withTenantContext } from '../config/db.js';
 import { leads, senderProfiles } from '../db/schema.js';
@@ -32,8 +33,10 @@ router.post(
   validateBody(expandDemographicSchema),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
+      const workspaceId = req.workspaceId!;
       const { demographic } = req.body;
-      const queries = await GeminiService.expandTargetDemographic(demographic);
+      const provider = await WorkspaceAiProviderService.getProvider(workspaceId);
+      const queries = await AiService.expandTargetDemographic(demographic, provider, workspaceId);
       res.json({
         success: true,
         demographic,
@@ -101,8 +104,9 @@ router.post(
         logoUrl: null,
       };
 
-      // 2. Call Gemini for personalized pitch content returning strict JSON schema
-      const pitchJson = await GeminiService.generateBrochurePitch(
+      // 2. Generate personalized pitch content via selected AI provider
+      const provider = await WorkspaceAiProviderService.getProvider(workspaceId);
+      const pitchJson = await AiService.generateBrochurePitch(
         {
           businessName: leadData.businessName,
           website: leadData.website,
@@ -110,7 +114,8 @@ router.post(
           address: leadData.address,
         },
         sender.companyName,
-        sender.pitchAngle || undefined
+        sender.pitchAngle || undefined,
+        provider
       );
 
       // 3. Render HTML template and generate PDF buffer via Puppeteer
@@ -163,8 +168,10 @@ router.post(
   validateBody(classifyIntentSchema),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
+      const workspaceId = req.workspaceId!;
       const { replyText } = req.body;
-      const classification = await GeminiService.classifyReplyIntent(replyText);
+      const provider = await WorkspaceAiProviderService.getProvider(workspaceId);
+      const classification = await AiService.classifyReplyIntent(replyText, provider);
       res.json({
         success: true,
         classification,

@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS workspaces (
     owner_user_id TEXT NOT NULL, -- Clerk User ID
     plan VARCHAR(50) NOT NULL DEFAULT 'starter', -- starter, pro, agency
     credits_remaining INT NOT NULL DEFAULT 500,
+    ai_provider VARCHAR(20) NOT NULL DEFAULT 'gemini' CHECK (ai_provider IN ('gemini', 'claude', 'openai')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

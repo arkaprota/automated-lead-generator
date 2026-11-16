@@ -2,7 +2,8 @@ import { Router, type Response } from 'express';
 import { z } from 'zod';
 import type { AuthenticatedRequest } from '../types/index.js';
 import { validateBody } from '../middleware/validator.middleware.js';
-import { GeminiService } from '../services/gemini.service.js';
+import { AiService } from '../services/ai.service.js';
+import { WorkspaceAiProviderService } from '../services/workspace-ai-provider.service.js';
 import { LeadScraperService } from '../services/leadScraper.service.js';
 import { SocketService } from '../services/socket.service.js';
 import { withTenantContext } from '../config/db.js';
@@ -29,14 +30,17 @@ router.post(
       const workspaceId = req.workspaceId!;
       const { demographic, campaignId, maxPerQuery } = req.body;
 
-      // Step A: Translate intent into 5 specific search queries via Gemini
+      // Resolve the workspace's chosen AI provider
+      const provider = await WorkspaceAiProviderService.getProvider(workspaceId);
+
+      // Step A: Translate intent into 5 specific search queries
       SocketService.emitLeadGenerationProgress(workspaceId, {
         workspaceId,
         currentStep: 'expanding_queries',
         totalProcessed: 0,
         qualifiedCount: 0,
       });
-      const searchQueries = await GeminiService.expandTargetDemographic(demographic);
+      const searchQueries = await AiService.expandTargetDemographic(demographic, provider, workspaceId);
 
       // Step B: Trigger scraping API to fetch raw Google Maps B2B data
       SocketService.emitLeadGenerationProgress(workspaceId, {
@@ -47,19 +51,41 @@ router.post(
       });
       const rawLeads = await LeadScraperService.scrapeGoogleMaps(searchQueries, maxPerQuery);
 
-      // Step C: Feed raw data back to Gemini to score and qualify each lead
+      // Step C: Dedup against existing workspace leads BEFORE scoring (Rule 12 — no wasted tokens)
+      const existingPlaceIds = new Set<string>();
+      const existingWebsites = new Set<string>();
+      try {
+        const existing = await withTenantContext(workspaceId, async (tenantDb) =>
+          tenantDb.select({ googlePlaceId: leads.googlePlaceId, website: leads.website }).from(leads)
+        );
+        for (const r of existing) {
+          if (r.googlePlaceId) existingPlaceIds.add(r.googlePlaceId);
+          if (r.website) existingWebsites.add(r.website);
+        }
+      } catch { /* DB unavailable — proceed without dedup */ }
+
+      const newLeads = rawLeads.filter((raw) => {
+        if (raw.googlePlaceId && existingPlaceIds.has(raw.googlePlaceId)) return false;
+        if (raw.website && existingWebsites.has(raw.website)) return false;
+        return true;
+      });
+
       SocketService.emitLeadGenerationProgress(workspaceId, {
         workspaceId,
         currentStep: 'qualifying_leads',
-        totalProcessed: rawLeads.length,
+        totalProcessed: newLeads.length,
         qualifiedCount: 0,
       });
+
+      // Score in batches — single LLM request for up to 10 leads (Rule 12 — batch)
+      const qualifications = await AiService.scoreAndQualifyLeadsBatch(newLeads, provider);
 
       const processedLeads: (typeof leads.$inferInsert)[] = [];
       let qualifiedCount = 0;
 
-      for (const raw of rawLeads) {
-        const qualification = await GeminiService.scoreAndQualifyLead(raw);
+      for (let i = 0; i < newLeads.length; i++) {
+        const raw = newLeads[i];
+        const qualification = qualifications[i];
         if (qualification.qualificationStatus === 'hot' || qualification.qualificationStatus === 'warm') {
           qualifiedCount++;
         }
