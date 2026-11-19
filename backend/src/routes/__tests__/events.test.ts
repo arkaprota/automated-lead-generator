@@ -1,6 +1,19 @@
 import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
 
+vi.hoisted(() => {
+  process.env.WEBHOOK_SECRET = 'test-webhook-secret';
+  process.env.CLERK_SECRET_KEY = 'sk_test_unit';
+});
+
+// Only 'valid-test-token' authenticates, as workspace ws_test_tenant
+vi.mock('../../utils/verify-clerk-token.util.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../utils/verify-clerk-token.util.js')>()),
+  verifyClerkToken: vi.fn(async (token: string) =>
+    token === 'valid-test-token' ? { userId: 'user_test', workspaceId: 'ws_test_tenant' } : null
+  ),
+}));
+
 // Mock withTenantContext for testing without an external PostgreSQL instance
 vi.mock('../../config/db.js', () => ({
   pool: { connect: vi.fn(), query: vi.fn() },
@@ -85,13 +98,15 @@ vi.mock('bullmq', () => {
 
 import { app } from '../../server.js';
 
+const AUTH = 'Bearer valid-test-token';
+
 describe('Automated Search Events & Dedicated Leads API', () => {
   const workspaceId = 'ws_test_tenant';
 
   it('POST /api/events should create a new search event and schedule recurring daily scrape', async () => {
     const res = await request(app)
       .post('/api/events')
-      .set('x-workspace-id', workspaceId)
+      .set('Authorization', AUTH)
       .send({
         name: 'Kolkata Restaurants Hunter',
         category: 'Restaurant',
@@ -110,7 +125,7 @@ describe('Automated Search Events & Dedicated Leads API', () => {
   it('GET /api/events should list all search events for the workspace', async () => {
     const res = await request(app)
       .get('/api/events')
-      .set('x-workspace-id', workspaceId);
+      .set('Authorization', AUTH);
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -121,7 +136,7 @@ describe('Automated Search Events & Dedicated Leads API', () => {
   it('PATCH /api/events/:id/status should toggle event between active and stopped', async () => {
     const res = await request(app)
       .patch('/api/events/00000000-0000-0000-0000-000000000001/status')
-      .set('x-workspace-id', workspaceId)
+      .set('Authorization', AUTH)
       .send({ status: 'stopped' });
 
     expect(res.status).toBe(200);
@@ -132,7 +147,7 @@ describe('Automated Search Events & Dedicated Leads API', () => {
   it('POST /api/events/:id/trigger should execute on-demand scrape with deduplication', async () => {
     const res = await request(app)
       .post('/api/events/00000000-0000-0000-0000-000000000001/trigger')
-      .set('x-workspace-id', workspaceId);
+      .set('Authorization', AUTH);
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -143,7 +158,7 @@ describe('Automated Search Events & Dedicated Leads API', () => {
   it('GET /api/events/:id/leads should retrieve dedicated leads for that event', async () => {
     const res = await request(app)
       .get('/api/events/00000000-0000-0000-0000-000000000001/leads')
-      .set('x-workspace-id', workspaceId);
+      .set('Authorization', AUTH);
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -154,7 +169,7 @@ describe('Automated Search Events & Dedicated Leads API', () => {
   it('DELETE /api/events/:id should remove the event and cancel BullMQ repeatable job', async () => {
     const res = await request(app)
       .delete('/api/events/00000000-0000-0000-0000-000000000001')
-      .set('x-workspace-id', workspaceId);
+      .set('Authorization', AUTH);
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);

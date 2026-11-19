@@ -33,4 +33,15 @@ if (!parsedEnv.success) {
   process.exit(1);
 }
 
+if (parsedEnv.data.NODE_ENV === 'production') {
+  const missing = (['CLERK_SECRET_KEY', 'WEBHOOK_SECRET'] as const).filter((k) => !parsedEnv.data[k]);
+  if (missing.length) {
+    console.error(`Refusing to start in production without: ${missing.join(', ')}`);
+    process.exit(1);
+  }
+}
+
 export const env = parsedEnv.data;
+
+/** Auth bypass is allowed only for local development with no Clerk key configured. */
+export const isAuthBypassed = env.NODE_ENV === 'development' && !env.CLERK_SECRET_KEY;

@@ -4,7 +4,10 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sparkles, CalendarSync, LayoutDashboard, Database, Activity } from 'lucide-react';
-import { AiProviderSelector } from './AiProviderSelector.js';
+import { AiProviderSelector } from './AiProviderSelector';
+import { AuthControls } from './AuthControls';
+
+const clerkEnabled = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_') ?? false;
 
 export function Navbar() {
   const pathname = usePathname();
@@ -60,6 +63,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <AiProviderSelector />
+          {clerkEnabled && <AuthControls />}
 
           <div className="hidden sm:flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />

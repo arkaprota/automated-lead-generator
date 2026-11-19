@@ -19,9 +19,6 @@ export function LiveNotificationToast({ workspaceId }: { workspaceId: string }) 
   useEffect(() => {
     const socket = getSocketClient();
 
-    // Join tenant room
-    socket.emit('join:workspace', workspaceId);
-
     const handlePositiveReply = (data: PositiveReplyNotification) => {
       console.log('[Socket] Received positive reply:', data);
       setNotification(data);

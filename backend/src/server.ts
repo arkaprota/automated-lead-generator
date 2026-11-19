@@ -1,7 +1,9 @@
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import { env } from './config/env.js';
+import helmet from 'helmet';
+import { env, isAuthBypassed } from './config/env.js';
+import { globalRateLimit } from './middleware/rate-limit.middleware.js';
 import apiRouter from './routes/index.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { SocketService } from './services/socket.service.js';
@@ -20,14 +22,27 @@ if (process.env.ENABLE_WORKER === 'true') {
   EventScrapeWorker.initWorker();
 }
 
+if (isAuthBypassed) {
+  console.warn('⚠️  [Auth] CLERK_SECRET_KEY is empty — API auth is BYPASSED (development only).');
+}
+
 // Middleware
+app.disable('x-powered-by');
+app.use(helmet());
 app.use(cors({
-  origin: [env.FRONTEND_URL, 'http://localhost:3000'],
+  origin: env.FRONTEND_URL,
   credentials: true,
 }));
+app.use(globalRateLimit);
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({
+  limit: '1mb',
+  // Raw bytes are kept for webhook HMAC verification
+  verify: (req, _res, buf) => {
+    (req as express.Request & { rawBody?: Buffer }).rawBody = buf;
+  },
+}));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Root welcome
 app.get('/', (_req, res) => {

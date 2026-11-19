@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
-import { type AnyZodObject, ZodError } from 'zod';
+import { type ZodType, ZodError } from 'zod';
 
-export function validateBody(schema: AnyZodObject) {
+export function validateBody(schema: ZodType) {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       req.body = await schema.parseAsync(req.body);
@@ -11,7 +11,7 @@ export function validateBody(schema: AnyZodObject) {
         res.status(400).json({
           success: false,
           error: 'Validation failed',
-          details: error.errors.map((err) => ({
+          details: error.issues.map((err) => ({
             field: err.path.join('.'),
             message: err.message,
           })),
@@ -23,17 +23,17 @@ export function validateBody(schema: AnyZodObject) {
   };
 }
 
-export function validateQuery(schema: AnyZodObject) {
+export function validateQuery(schema: ZodType) {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      req.query = await schema.parseAsync(req.query);
+      req.query = (await schema.parseAsync(req.query)) as Request['query'];
       next();
     } catch (error) {
       if (error instanceof ZodError) {
         res.status(400).json({
           success: false,
           error: 'Query parameter validation failed',
-          details: error.errors.map((err) => ({
+          details: error.issues.map((err) => ({
             field: err.path.join('.'),
             message: err.message,
           })),

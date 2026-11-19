@@ -59,8 +59,6 @@ export default function EventsPage() {
     // Listen to real-time event updates via Socket.io
     const socket = getSocket();
     if (socket) {
-      socket.emit('join:workspace', workspaceId);
-
       socket.on('event:updated', (payload: { eventId: string; status: string; totalLeadsFound: number; lastRunAt: string }) => {
         setEvents((prev) =>
           prev.map((item) =>

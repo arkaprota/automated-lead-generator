@@ -25,7 +25,7 @@ export class GeminiClient implements LlmClient {
       const result = task.zodSchema.safeParse(parsed);
 
       if (!result.success) {
-        console.warn(`[GeminiClient] Schema validation failed for task "${task.name}":`, result.error.errors);
+        console.warn(`[GeminiClient] Schema validation failed for task "${task.name}":`, result.error.issues);
         return null;
       }
 

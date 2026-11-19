@@ -1,3 +1,4 @@
+import { authHeaders } from './auth-headers';
 import type { SearchEventItem, CreateEventPayload, EventLeadItem } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -10,7 +11,7 @@ export async function fetchEvents(workspaceId: string, status?: string): Promise
 
   const res = await fetch(url.toString(), {
     headers: {
-      'x-workspace-id': workspaceId,
+      ...(await authHeaders()),
     },
   });
 
@@ -26,7 +27,7 @@ export async function createSearchEvent(workspaceId: string, payload: CreateEven
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-workspace-id': workspaceId,
+      ...(await authHeaders()),
     },
     body: JSON.stringify(payload),
   });
@@ -48,7 +49,7 @@ export async function toggleEventStatus(
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
-      'x-workspace-id': workspaceId,
+      ...(await authHeaders()),
     },
     body: JSON.stringify({ status }),
   });
@@ -67,7 +68,7 @@ export async function triggerEventScrape(
   const res = await fetch(`${API_URL}/events/${eventId}/trigger`, {
     method: 'POST',
     headers: {
-      'x-workspace-id': workspaceId,
+      ...(await authHeaders()),
     },
   });
 
@@ -82,7 +83,7 @@ export async function deleteSearchEvent(workspaceId: string, eventId: string): P
   const res = await fetch(`${API_URL}/events/${eventId}`, {
     method: 'DELETE',
     headers: {
-      'x-workspace-id': workspaceId,
+      ...(await authHeaders()),
     },
   });
 
@@ -99,7 +100,7 @@ export async function fetchEventLeads(
 ): Promise<{ success: boolean; eventId: string; total: number; leads: EventLeadItem[] }> {
   const res = await fetch(`${API_URL}/events/${eventId}/leads`, {
     headers: {
-      'x-workspace-id': workspaceId,
+      ...(await authHeaders()),
     },
   });
 

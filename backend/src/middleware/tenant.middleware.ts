@@ -1,41 +1,40 @@
 import type { Response, NextFunction } from 'express';
 import type { AuthenticatedRequest } from '../types/index.js';
+import { isAuthBypassed } from '../config/env.js';
+import { verifyClerkToken, extractBearerToken } from '../utils/verify-clerk-token.util.js';
+
+export const DEV_WORKSPACE_ID = 'ws_dev_default';
+const DEV_USER_ID = 'user_dev_default';
 
 /**
- * Tenant Isolation Middleware
- * Resolves the active workspace_id for the current tenant from:
- * 1. `x-workspace-id` HTTP header (typically passed from Next.js Clerk active Org)
- * 2. Clerk Authorization JWT claims (when configured)
- * 3. Fallback dev workspace header
+ * Authenticates the Clerk session token and derives the tenant from its active organization.
+ * Client-supplied workspace headers are never trusted.
  */
-export function tenantMiddleware(
+export async function tenantMiddleware(
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-): void {
-  const workspaceIdHeader = req.headers['x-workspace-id'] || req.headers['x-tenant-id'];
-  const userIdHeader = req.headers['x-user-id'];
-
-  const resolvedWorkspaceId = Array.isArray(workspaceIdHeader)
-    ? workspaceIdHeader[0]
-    : workspaceIdHeader;
-
-  const resolvedUserId = Array.isArray(userIdHeader)
-    ? userIdHeader[0]
-    : userIdHeader;
-
-  // In production, require strict workspace resolution
-  if (!resolvedWorkspaceId && process.env.NODE_ENV === 'production') {
-    res.status(401).json({
-      success: false,
-      error: 'Unauthorized: Missing required Workspace Context (x-workspace-id header)',
-    });
+): Promise<void> {
+  if (isAuthBypassed) {
+    req.workspaceId = DEV_WORKSPACE_ID;
+    req.userId = DEV_USER_ID;
+    next();
     return;
   }
 
-  // Development fallback for local testing
-  req.workspaceId = resolvedWorkspaceId || 'ws_dev_default';
-  req.userId = resolvedUserId || 'user_dev_default';
+  const token = extractBearerToken(req.headers.authorization);
+  const identity = token ? await verifyClerkToken(token) : null;
 
+  if (!identity) {
+    res.status(401).json({ success: false, error: 'Unauthorized' });
+    return;
+  }
+  if (!identity.workspaceId) {
+    res.status(403).json({ success: false, error: 'No active organization selected' });
+    return;
+  }
+
+  req.workspaceId = identity.workspaceId;
+  req.userId = identity.userId;
   next();
 }

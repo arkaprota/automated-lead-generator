@@ -34,7 +34,7 @@ export class ClaudeClient implements LlmClient {
       const result = task.zodSchema.safeParse(parsed);
 
       if (!result.success) {
-        console.warn(`[ClaudeClient] Schema validation failed for task "${task.name}":`, result.error.errors);
+        console.warn(`[ClaudeClient] Schema validation failed for task "${task.name}":`, result.error.issues);
         return null;
       }
 

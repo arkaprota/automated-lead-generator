@@ -9,7 +9,8 @@ export function errorHandler(
   console.error('[Error Handler]:', err);
 
   const status = (err as { status?: number }).status || 500;
-  const message = err.message || 'Internal Server Error';
+  // Never echo internal error text (DB / SDK messages) to clients on server errors
+  const message = status >= 500 ? 'Internal Server Error' : err.message || 'Request failed';
 
   res.status(status).json({
     success: false,

@@ -5,6 +5,7 @@ export * from './brochure-pitch-response.interface.js';
 export * from './reply-classification-response.interface.js';
 export * from './raw-scraped-lead.interface.js';
 export * from './socket-events.interface.js';
+export * from './verified-identity.interface.js';
 export * from './search-event.interface.js';
 export * from './llm-client.interface.js';
 export * from './llm-json-task.interface.js';

@@ -83,24 +83,33 @@ export class BrochureService {
   ): Promise<Buffer> {
     const renderedHtml = ejs.render(this.HTML_TEMPLATE, { lead, sender, pitch });
 
+    let browser: Awaited<ReturnType<typeof puppeteer.launch>> | null = null;
     try {
-      const browser = await puppeteer.launch({
+      browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
       });
       const page = await browser.newPage();
+      // Rendered HTML contains tenant/scraped data: no scripts, no network (prevents SSRF)
+      await page.setJavaScriptEnabled(false);
+      await page.setRequestInterception(true);
+      page.on('request', (request) => {
+        if (request.url().startsWith('data:')) request.continue();
+        else request.abort();
+      });
       await page.setContent(renderedHtml, { waitUntil: 'domcontentloaded' });
       const pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
         margin: { top: '20mm', bottom: '20mm', left: '15mm', right: '15mm' },
       });
-      await browser.close();
       return Buffer.from(pdfBuffer);
     } catch (err) {
       console.warn('[BrochureService] Puppeteer PDF rendering fallback:', err);
       // Fallback PDF buffer emulation for non-headless serverless / dev environments
       return Buffer.from(renderedHtml, 'utf-8');
+    } finally {
+      await browser?.close();
     }
   }
 

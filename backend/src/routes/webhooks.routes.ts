@@ -15,7 +15,7 @@ const webhookPayloadSchema = z.object({
   messageId: z.string().optional(),
   fromEmail: z.string().email().optional(),
   replyText: z.string().min(1, 'Reply content is required'),
-  rawPayload: z.record(z.unknown()).optional(),
+  rawPayload: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**
@@ -31,7 +31,7 @@ router.post('/email-replies', async (req: Request, res: Response): Promise<void>
       res.status(400).json({
         success: false,
         error: 'Invalid webhook payload',
-        details: parseResult.error.errors,
+        details: parseResult.error.issues,
       });
       return;
     }

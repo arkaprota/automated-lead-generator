@@ -1,7 +1,9 @@
 import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
-import { env } from '../config/env.js';
+import { env, isAuthBypassed } from '../config/env.js';
 import type { SocketEvents } from '../types/index.js';
+import { verifyClerkToken } from '../utils/verify-clerk-token.util.js';
+import { DEV_WORKSPACE_ID } from '../middleware/tenant.middleware.js';
 
 let ioInstance: SocketIOServer | null = null;
 
@@ -12,22 +14,28 @@ export class SocketService {
   static init(server: HttpServer): SocketIOServer {
     ioInstance = new SocketIOServer(server, {
       cors: {
-        origin: [env.FRONTEND_URL, 'http://localhost:3000'],
+        origin: env.FRONTEND_URL,
         methods: ['GET', 'POST'],
         credentials: true,
       },
     });
 
-    ioInstance.on('connection', (socket: Socket) => {
-      console.log(`[Socket.io] Client connected: ${socket.id}`);
+    // Tenant room is derived from the verified token — clients cannot pick a room
+    ioInstance.use(async (socket, next) => {
+      if (isAuthBypassed) {
+        socket.data.workspaceId = DEV_WORKSPACE_ID;
+        return next();
+      }
+      const token = socket.handshake.auth?.token;
+      const identity = typeof token === 'string' ? await verifyClerkToken(token) : null;
+      if (!identity?.workspaceId) return next(new Error('Unauthorized'));
+      socket.data.workspaceId = identity.workspaceId;
+      next();
+    });
 
-      // Allow frontend client to join tenant room for real-time workspace updates
-      socket.on('join:workspace', (workspaceId: string) => {
-        if (workspaceId) {
-          socket.join(`workspace:${workspaceId}`);
-          console.log(`[Socket.io] Socket ${socket.id} joined room workspace:${workspaceId}`);
-        }
-      });
+    ioInstance.on('connection', (socket: Socket) => {
+      socket.join(`workspace:${socket.data.workspaceId}`);
+      console.log(`[Socket.io] Client ${socket.id} joined its workspace room`);
 
       socket.on('disconnect', () => {
         console.log(`[Socket.io] Client disconnected: ${socket.id}`);

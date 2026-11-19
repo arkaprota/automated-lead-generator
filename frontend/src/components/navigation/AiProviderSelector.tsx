@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState, useTransition } from 'react';
 import { Bot, ChevronDown, Sparkles, Brain, MessageSquare } from 'lucide-react';
-import { LlmProvider } from '../../types/llm-provider.enum.js';
-import { getAiProvider, setAiProvider, type AvailableProvider } from '../../lib/ai-provider.api.js';
+import { LlmProvider } from '../../types/llm-provider.enum';
+import { getAiProvider, setAiProvider, type AvailableProvider } from '../../lib/ai-provider.api';
 
 const PROVIDER_META: Record<LlmProvider, { label: string; shortLabel: string; icon: React.ReactNode; color: string }> = {
   [LlmProvider.GEMINI]: {
