@@ -36,7 +36,7 @@
 | **#026** | 2026-11-16 17:18 | Multi-LLM Provider Selection (Gemini / Claude / OpenAI) per Workspace | ✅ Completed | `e1fc6c4` |
 | **#027** | 2026-11-16 17:31 | SRP File Structure Clean-up: Backend type split, kebab-case rename, frontend type dedup, secret removal | ✅ Completed | `004fa76` |
 | **#028** | 2026-11-19 12:10 | Local .env files + security hardening (Clerk auth, signed webhooks, socket auth, RLS fix, deps to 0 vulns) | ✅ Completed | `a2ad112` |
-| **#029** | 2026-11-19 13:30 | Rules 13 (code placement) & 14 (no demo data); delete all demo data; auth/profile plan revised | ✅ Completed | pending push |
+| **#029** | 2026-11-19 13:30 | Rules 13 (code placement) & 14 (no demo data); delete all demo data; auth/profile plan revised | ✅ Completed | `e542feb` |
 
 
 ---
@@ -442,5 +442,5 @@
 | **Files Changed** | `AGENTS.md` (Rules 13, 14), `.agents/rules.md` (§3.1.1, §3.1.2), `.agents/plans/auth-pages-and-profile.md` (regenerated, split by side — still pending approval), `.agents/plans/remove-demo-data.md`; backend + frontend files per `.agents/plans/remove-demo-data.md` §2–§5. |
 | **Key Decisions** | 1. Deleted: mock scraper, fake events/leads on DB failure, fabricated insert counts, invented email recipients, canned pitch, invented 70/warm score, fake sender profile, fake storage URL, fake email `sent: true`, `dummy-dev-key` SDK credentials, unused `gemini.service.ts`, frontend pre-filled Kolkata/Restaurant values and fake `sample.pdf`.<br>2. Missing integrations now return 503 via `IntegrationNotConfiguredError` (scraper, email, storage, AI, database); frontend shows the backend's message.<br>3. Kept (allowed): null-website Hot Lead heuristic, keyword reply classifier, query templates from user input, `__tests__/` fixtures, `e.g.` input placeholders.<br>4. Also fixed: leaked error `details`, unescaped business names in email HTML. |
 | **Verification** | Backend 19/19 Vitest (2 new: scraper unconfigured → 503; no AI key → `unqualified`); `tsc --noEmit` 0 errors both apps; demo-data re-scan returns only allowed hints; live: `/api/events` → "Database unavailable", `/api/leads/generate` → "Lead scraper not configured"; all pages 200. |
-| **Git Commit** | pending push |
+| **Git Commit** | `e542feb` |
 | **Status** | ✅ Completed |
