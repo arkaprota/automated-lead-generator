@@ -6,8 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Sparkles, CalendarSync, LayoutDashboard, Database, Activity } from 'lucide-react';
 import { AiProviderSelector } from './AiProviderSelector';
 import { AuthControls } from './AuthControls';
-
-const clerkEnabled = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_') ?? false;
+import { clerkEnabled } from '@/lib/clerk-enabled';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -70,10 +69,13 @@ export function Navbar() {
             <span>Zero Duplicates Active</span>
           </div>
 
-          <div className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900/80 px-3 py-1.5 text-xs text-slate-300">
-            <Database className="h-3.5 w-3.5 text-indigo-400" />
-            <span className="font-mono text-slate-400">ws_dev_default</span>
-          </div>
+          {/* With Clerk the OrganizationSwitcher shows the real workspace; this is the backend's dev-bypass workspace */}
+          {!clerkEnabled && (
+            <div className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900/80 px-3 py-1.5 text-xs text-slate-300">
+              <Database className="h-3.5 w-3.5 text-indigo-400" />
+              <span className="font-mono text-slate-400">ws_dev_default</span>
+            </div>
+          )}
         </div>
       </div>
     </header>

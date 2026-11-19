@@ -19,10 +19,10 @@
 - [ ] Generate Drizzle / Prisma ORM schema companion (`schema.ts`) and create transactional `withTenantContext` runner.
 
 ### Phase 1.3: Clerk Multi-Tenant Authentication & Workspace Sync
-- [ ] Configure Clerk middleware and SDK integration on frontend and backend.
-- [ ] Implement Clerk Organization mapping (1:1 mapping between Clerk Org and PostgreSQL Workspace).
-- [ ] Create Clerk Webhook route (`/api/webhooks/clerk`) to sync user creation, organization creation, and membership changes into PostgreSQL.
-- [ ] Implement `tenantMiddleware` extracting `workspace_id` from auth headers/claims.
+- [x] Configure Clerk middleware and SDK integration on frontend and backend. _(backend JWT verification; frontend client-side gating — Rule 1)_
+- [x] Implement Clerk Organization mapping (1:1 mapping between Clerk Org and PostgreSQL Workspace).
+- [x] Create Clerk Webhook route (`/api/webhooks/clerk`) to sync user creation, organization creation, and membership changes into PostgreSQL.
+- [x] Implement `tenantMiddleware` extracting `workspace_id` from auth headers/claims.
 
 ### Phase 1.4: Express Server Boilerplate & Real-Time Socket.io Layer
 - [ ] Build Express application boilerplate with CORS, JSON body parser, and centralized Zod validation middlewares.
@@ -40,7 +40,7 @@
 
 ### Phase 1.6: Next.js Dashboard Layout & Seller Profile Configuration
 - [ ] Build root dashboard layout with sidebar navigation (Leads, Campaigns, Inbox, Settings, Analytics, AI Chat).
-- [ ] Create workspace switcher linked to Clerk Organizations.
+- [x] Create workspace switcher linked to Clerk Organizations.
 - [ ] Build Seller Profile Settings page (`/settings/profile`) allowing users to configure agency name, sender email, pitch angle, logo URL, and portfolio links.
 - [ ] Wire Seller Profile form to backend REST API (`POST /api/sender-profiles`) with optimistic UI updates.
 

@@ -34,7 +34,10 @@ export const workspaceMembers = pgTable('workspace_members', {
   role: varchar('role', { length: 50 }).notNull().default('member'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => ({
+  // Mirrors CONSTRAINT uq_workspace_member in schema.sql
+  uniqueMember: uniqueIndex('uq_workspace_member').on(table.workspaceId, table.userId),
+}));
 
 // ==============================================================================
 // 2. SENDER PROFILES

@@ -1,6 +1,6 @@
 # Implementation Plan: Sign-up, Login, Forgot/Change Password & Profile Page
 
-> **Status:** PENDING_USER_AUTHORIZATION
+> **Status:** COMPLETED (implemented 2026-11-19 with Clerk prebuilt screens)
 > **Created:** 2026-11-19 UTC · **Revised:** 2026-11-19 (split by side per AGENTS.md Rule 13; added backend sync + profile API)
 
 ## 1. Scope
@@ -100,3 +100,13 @@ Without `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`: auth pages show the "Authentication
 - **Backend:** `tsc --noEmit` 0 errors; Vitest: existing 17 + new `/api/me` and Clerk-webhook tests (unsigned → 400, valid signature → sync called, `/api/me` without token → 401).
 - **Frontend:** `tsc --noEmit` 0 errors; keyless: `/sign-in`, `/sign-up`, `/profile` return 200, existing pages still 200.
 - **With real Clerk keys (needs your keys, not testable before):** sign up → verify email → `/dashboard`; signed-out `/dashboard` → `/sign-in`; forgot password → reset → sign in; change password on `/profile`; webhook creates `users` / `workspaces` rows; profile card shows plan and credits.
+
+## 7. As-built deviations
+- **No `src/middleware.ts`.** Clerk's Next.js middleware needs `CLERK_SECRET_KEY` on the frontend server, which AGENTS.md Rule 1 forbids. Route gating is client-side instead: `components/auth/RequireAuth.tsx` (`<SignedOut><RedirectToSignIn/></SignedOut>`) via new `app/dashboard/layout.tsx`, `app/events/layout.tsx`, and the profile page. Data protection is unchanged — the backend rejects every API call without a valid token.
+- Frontend component files use the existing PascalCase convention (`AuthPageShell.tsx`, `AuthNotConfigured.tsx`, `ProfileSummaryCard.tsx`) instead of the kebab-case names listed in §3.1.
+- Added `src/services/__tests__/clerk-sync.service.test.ts` (field mapping: primary email, `org:` role prefix, tenant context).
+- `db/schema.ts`: declared the existing `uq_workspace_member` unique index (already in `schema.sql`) so the membership upsert has a conflict target — no DB change.
+- `ProfileService` reads `users` inside the tenant transaction so a DB outage returns 503.
+- Redirects after auth use the current `NEXT_PUBLIC_CLERK_SIGN_{IN,UP}_FALLBACK_REDIRECT_URL` vars / `ClerkProvider` props (deprecated `AFTER_SIGN_*` vars removed).
+- `frontend/.env.example`: blanked `pk_test_sample…`, which passed the `pk_` check and would have mounted Clerk with an invalid key.
+- Navbar `ws_dev_default` badge now shows only in keyless dev mode (the org switcher shows the real workspace otherwise).

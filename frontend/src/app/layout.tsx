@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Navbar } from '@/components/navigation/Navbar';
+import { clerkAppearance } from '@/lib/clerk-appearance';
 
 export const metadata: Metadata = {
   title: 'LeadPilot AI - Automated Cold Outreach & B2B Lead Generation',
@@ -24,7 +25,14 @@ export default function RootLayout({
 
   if (clerkKey && clerkKey.startsWith('pk_')) {
     return (
-      <ClerkProvider publishableKey={clerkKey}>
+      <ClerkProvider
+        publishableKey={clerkKey}
+        appearance={clerkAppearance}
+        signInUrl="/sign-in"
+        signUpUrl="/sign-up"
+        signInFallbackRedirectUrl="/dashboard"
+        signUpFallbackRedirectUrl="/dashboard"
+      >
         <html lang="en">
           <body className="bg-slate-950 text-slate-100 antialiased">{content}</body>
         </html>

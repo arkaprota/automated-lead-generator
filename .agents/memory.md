@@ -38,7 +38,7 @@
 | **Documentation-Driven Development Workflow** | Core / Docs | `COMPLETED` | Six core DDD files created in project root. |
 | **Decoupled Independent Backend & Frontend Architecture** | Infra / Architecture | `COMPLETED` | Completely decoupled standalone `/backend` and `/frontend` codebases; root `packages/` and `node_modules/` eliminated; modular single-responsibility types inside each codebase. |
 | **Neon PostgreSQL Multi-Tenant RLS Schema** | Database | `IN_PROGRESS` | `schema.sql` created; pending final workspace migration sync. |
-| **Clerk Auth & Organization Synchronization** | Authentication | `PENDING` | Scheduled for Phase 1.3. |
+| **Clerk Auth & Organization Synchronization** | Authentication | `COMPLETED` | /sign-up, /sign-in (incl. forgot password), /profile (change password, account, workspace card from GET /api/me). Svix-verified POST /api/webhooks/clerk syncs users / workspaces / workspace_members. Client-side route gating (no CLERK_SECRET_KEY in frontend). |
 | **Express API Gateway & Error Handling** | Backend Core | `IN_PROGRESS` | Boilerplate operational; refactoring into structured `/apps/api`. |
 | **Real-Time Socket.io Alert Engine** | Real-Time | `COMPLETED` | Room multiplexing (`workspace:<id>`) active with `lead:positive_reply` and `event:updated`. |
 | **Automated Search Events & CRUD Table** | Automation / Events | `COMPLETED` | Daily autonomous Google Maps search events with interactive CRUD table, start/stop toggle, and BullMQ cron repeat. |

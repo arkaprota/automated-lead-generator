@@ -21,6 +21,7 @@ const envSchema = z.object({
   LLM_PROVIDER: z.enum(['gemini', 'claude', 'openai']).optional().default('gemini'),
   CLERK_SECRET_KEY: z.string().optional().default(''),
   CLERK_PUBLISHABLE_KEY: z.string().optional().default(''),
+  CLERK_WEBHOOK_SIGNING_SECRET: z.string().optional().default(''),
   SCRAPER_API_KEY: z.string().optional().default(''),
   NYLAS_API_KEY: z.string().optional().default(''),
   WEBHOOK_SECRET: z.string().optional().default(''),
@@ -34,7 +35,9 @@ if (!parsedEnv.success) {
 }
 
 if (parsedEnv.data.NODE_ENV === 'production') {
-  const missing = (['CLERK_SECRET_KEY', 'WEBHOOK_SECRET'] as const).filter((k) => !parsedEnv.data[k]);
+  const missing = (['CLERK_SECRET_KEY', 'CLERK_WEBHOOK_SIGNING_SECRET', 'WEBHOOK_SECRET'] as const).filter(
+    (k) => !parsedEnv.data[k]
+  );
   if (missing.length) {
     console.error(`Refusing to start in production without: ${missing.join(', ')}`);
     process.exit(1);
