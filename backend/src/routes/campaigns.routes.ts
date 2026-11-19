@@ -6,6 +6,8 @@ import { withTenantContext } from '../config/db.js';
 import { campaigns, leads, emailEvents } from '../db/schema.js';
 import { eq, desc } from 'drizzle-orm';
 import { QueueService } from '../services/queue.service.js';
+import { respondWithError } from '../utils/respond-with-error.util.js';
+import { escapeHtml } from '../utils/escape-html.util.js';
 
 const router = Router();
 
@@ -83,6 +85,8 @@ router.post('/:id/dispatch', async (req: AuthenticatedRequest, res: Response): P
     const workspaceId = req.workspaceId!;
     const campaignId = req.params.id;
 
+    QueueService.ensureEmailProviderConfigured();
+
     const campaignLeads = await withTenantContext(workspaceId, async (tenantDb) => {
       return tenantDb
         .select()
@@ -92,19 +96,23 @@ router.post('/:id/dispatch', async (req: AuthenticatedRequest, res: Response): P
     });
 
     let enqueuedCount = 0;
-    // Human-like throttling jitter (stagger jobs by 15-30s intervals)
-    for (let i = 0; i < campaignLeads.length; i++) {
-      const lead = campaignLeads[i];
-      const targetEmail = lead.email || `contact@${lead.businessName.toLowerCase().replace(/[^a-z0-9]/g, '')}.example.com`;
-      const delayMs = i * 15000; // 15 seconds apart
+    let skippedNoEmail = 0;
+    // Human-like throttling jitter (stagger jobs by 15s intervals)
+    for (const lead of campaignLeads) {
+      if (!lead.email) {
+        skippedNoEmail++;
+        continue;
+      }
+      const delayMs = enqueuedCount * 15000;
+      const safeName = escapeHtml(lead.businessName);
 
       await QueueService.enqueueEmailJob({
         workspaceId,
         campaignId,
         leadId: lead.id,
-        toEmail: targetEmail,
+        toEmail: lead.email,
         subject: `Strategic growth idea for ${lead.businessName}`,
-        bodyHtml: `<p>Hello team at <strong>${lead.businessName}</strong>,</p><p>We analyzed your local market position and put together a personalized digital blueprint for you:</p><p><a href="${lead.pdfBrochureUrl || '#'}">View Your Personalized Brochure (PDF)</a></p>`,
+        bodyHtml: `<p>Hello team at <strong>${safeName}</strong>,</p><p>We analyzed your local market position and put together a personalized digital blueprint for you:</p>${lead.pdfBrochureUrl ? `<p><a href="${escapeHtml(lead.pdfBrochureUrl)}">View Your Personalized Brochure (PDF)</a></p>` : ''}`,
         pdfUrl: lead.pdfBrochureUrl || undefined,
       }, delayMs);
 
@@ -126,11 +134,12 @@ router.post('/:id/dispatch', async (req: AuthenticatedRequest, res: Response): P
       success: true,
       campaignId,
       enqueuedCount,
-      message: `Enqueued ${enqueuedCount} emails to BullMQ with throttled dispatch intervals`,
+      skippedNoEmail,
+      message: `Enqueued ${enqueuedCount} emails; skipped ${skippedNoEmail} leads with no email address`,
     });
   } catch (error) {
     console.error('[CampaignsRouter] Dispatch error:', error);
-    res.status(500).json({ success: false, error: 'Failed to dispatch campaign emails' });
+    respondWithError(res, error, 'Failed to dispatch campaign emails');
   }
 });
 

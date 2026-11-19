@@ -92,6 +92,17 @@ Mandatory for every LLM call (Gemini, Claude, OpenAI). Full text: `AGENTS.md` �
 - **REST & Socket Only:** The frontend interacts with backend resources strictly via standard HTTP REST APIs (`/api/*`) and WebSocket events (`socket.io`).
 - **No Cross-Imports:** `/backend` never imports from `/frontend`, and `/frontend` never imports from `/backend`. Both run as completely independent services.
 
+### 3.1.2 No Demo Data (AGENTS.md Rule 14)
+- No fake, sample, seeded, or placeholder records anywhere in `/backend` or `/frontend` application code, and no canned AI output.
+- Missing or failing dependencies produce an error or an honest empty state, never invented data.
+- Delete demo data when found; never add new demo data. Exceptions: `__tests__/` fixtures and `.env.example` placeholders.
+
+### 3.1.1 Code Placement (AGENTS.md Rule 13)
+- Backend code (routes, services, middleware, workers, DB/queue access, server tests) → `/backend` only. Frontend code (pages, components, hooks, client API wrappers, styles) → `/frontend` only. Nothing at the repo root.
+- Business logic, data-protecting validation, and anything using a secret belong to `/backend`; the frontend renders and calls `/api/*` / Socket.io.
+- Types needed by both sides are mirrored in each side's own `types/` folder.
+- Every plan in `.agents/plans/` lists files under separate **Backend** and **Frontend** sections.
+
 ### 3.2 Non-Blocking Event Loop Standard
 - **NEVER** run heavy or long-running synchronous operations on the main Express HTTP thread.
 - The following tasks **MUST** be offloaded to BullMQ background workers:

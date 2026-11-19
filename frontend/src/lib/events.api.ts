@@ -5,6 +5,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 export type { SearchEventItem, CreateEventPayload, EventLeadItem };
 
+/** Uses the backend's message (e.g. "Lead scraper not configured") when it sends one. */
+async function apiError(res: Response, fallback: string): Promise<Error> {
+  const body = await res.json().catch(() => ({}));
+  return new Error(body.error || body.message || fallback);
+}
+
 export async function fetchEvents(workspaceId: string, status?: string): Promise<{ success: boolean; events: SearchEventItem[] }> {
   const url = new URL(`${API_URL}/events`);
   if (status) url.searchParams.append('status', status);
@@ -16,7 +22,7 @@ export async function fetchEvents(workspaceId: string, status?: string): Promise
   });
 
   if (!res.ok) {
-    throw new Error('Failed to fetch automated search events');
+    throw await apiError(res, 'Failed to fetch automated search events');
   }
 
   return res.json();
@@ -33,8 +39,7 @@ export async function createSearchEvent(workspaceId: string, payload: CreateEven
   });
 
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Failed to create search event');
+    throw await apiError(res, 'Failed to create search event');
   }
 
   return res.json();
@@ -55,7 +60,7 @@ export async function toggleEventStatus(
   });
 
   if (!res.ok) {
-    throw new Error('Failed to update event status');
+    throw await apiError(res, 'Failed to update event status');
   }
 
   return res.json();
@@ -73,7 +78,7 @@ export async function triggerEventScrape(
   });
 
   if (!res.ok) {
-    throw new Error('Failed to trigger on-demand event scrape');
+    throw await apiError(res, 'Failed to trigger on-demand event scrape');
   }
 
   return res.json();
@@ -88,7 +93,7 @@ export async function deleteSearchEvent(workspaceId: string, eventId: string): P
   });
 
   if (!res.ok) {
-    throw new Error('Failed to delete search event');
+    throw await apiError(res, 'Failed to delete search event');
   }
 
   return res.json();
@@ -105,7 +110,7 @@ export async function fetchEventLeads(
   });
 
   if (!res.ok) {
-    throw new Error('Failed to retrieve dedicated event leads');
+    throw await apiError(res, 'Failed to retrieve dedicated event leads');
   }
 
   return res.json();

@@ -1,10 +1,18 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 
 vi.hoisted(() => {
   process.env.WEBHOOK_SECRET = 'test-webhook-secret';
   process.env.CLERK_SECRET_KEY = 'sk_test_unit';
 });
+
+// Test-only scraper fixtures (Rule 14 exception: __tests__/ fixtures)
+const scrapeGoogleMaps = vi.hoisted(() => vi.fn());
+vi.mock('../../services/lead-scraper.service.js', () => ({ LeadScraperService: { scrapeGoogleMaps } }));
+const SCRAPED_FIXTURE = [
+  { businessName: 'Fixture Cafe', website: null, phone: '+10000000001', googlePlaceId: 'fixture_place_1' },
+  { businessName: 'Fixture Studio', website: 'https://fixture-studio.test', phone: '+10000000002', googlePlaceId: 'fixture_place_2' },
+];
 
 // Only 'valid-test-token' authenticates, as workspace ws_test_tenant
 vi.mock('../../utils/verify-clerk-token.util.js', async (importOriginal) => ({
@@ -29,7 +37,7 @@ vi.mock('../../config/db.js', () => ({
       status: 'active',
       queryPrompt: null,
       totalLeadsFound: 6,
-      lastRunAt: new Date().toISOString(),
+      lastRunAt: new Date(),
       nextRunAt: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -66,7 +74,9 @@ vi.mock('../../config/db.js', () => ({
         }),
       }),
       delete: vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue({ rowCount: 1 }),
+        where: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]),
+        }),
       }),
     };
     return callback(mockTenantDb);
@@ -99,6 +109,10 @@ vi.mock('bullmq', () => {
 import { app } from '../../server.js';
 
 const AUTH = 'Bearer valid-test-token';
+
+beforeEach(() => {
+  scrapeGoogleMaps.mockReset().mockResolvedValue(SCRAPED_FIXTURE);
+});
 
 describe('Automated Search Events & Dedicated Leads API', () => {
   const workspaceId = 'ws_test_tenant';

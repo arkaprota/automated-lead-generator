@@ -82,7 +82,7 @@ export class SocketService {
    */
   static emitEventUpdated(
     workspaceId: string,
-    payload: { eventId: string; status: string; totalLeadsFound: number; lastRunAt: string }
+    payload: { eventId: string; status: string; totalLeadsFound: number; lastRunAt: string | null }
   ): void {
     if (ioInstance) {
       ioInstance.to(`workspace:${workspaceId}`).emit('event:updated', payload);

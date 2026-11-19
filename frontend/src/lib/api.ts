@@ -50,7 +50,8 @@ export async function generateBrochure(workspaceId: string, leadId: string) {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to generate PDF brochure');
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to generate PDF brochure');
   }
 
   return response.json();

@@ -2,6 +2,7 @@ import { Pool, type PoolClient } from 'pg';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../db/schema.js';
 import { env } from './env.js';
+import { IntegrationNotConfiguredError } from '../errors/integration-not-configured.error.js';
 
 export type TenantDb = NodePgDatabase<typeof schema>;
 
@@ -27,7 +28,12 @@ export async function withTenantContext<T>(
   workspaceId: string,
   callback: (clientDb: TenantDb) => Promise<T>
 ): Promise<T> {
-  const client: PoolClient = await pool.connect();
+  let client: PoolClient;
+  try {
+    client = await pool.connect();
+  } catch {
+    throw new IntegrationNotConfiguredError('database', 'unavailable');
+  }
   try {
     await client.query('BEGIN');
     // Set PostgreSQL session config for Neon Row-Level Security

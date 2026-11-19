@@ -31,7 +31,7 @@ interface LeadItem {
 
 export default function DashboardPage() {
   const [workspaceId] = useState('ws_dev_default');
-  const [demographic, setDemographic] = useState('Web design clients in Kolkata');
+  const [demographic, setDemographic] = useState('');
   const [loading, setLoading] = useState(false);
   const [brochureLoadingId, setBrochureLoadingId] = useState<string | null>(null);
   const [generatedQueries, setGeneratedQueries] = useState<string[]>([]);
@@ -65,10 +65,11 @@ export default function DashboardPage() {
 
   // Trigger Pipeline 2: Dynamic PDF Brochure Generation
   const handleGenerateBrochure = async (lead: LeadItem, index: number) => {
-    const leadId = lead.id || `lead_mock_${index}`;
-    setBrochureLoadingId(leadId);
+    if (!lead.id) return;
+    setBrochureLoadingId(lead.id);
+    setErrorMsg(null);
     try {
-      const result = await generateBrochure(workspaceId, lead.id || '00000000-0000-0000-0000-000000000000');
+      const result = await generateBrochure(workspaceId, lead.id);
       // Update lead in state
       setLeadsList((prev) =>
         prev.map((item, idx) =>
@@ -76,14 +77,7 @@ export default function DashboardPage() {
         )
       );
     } catch (err: unknown) {
-      console.warn('Brochure generation simulated:', err);
-      setLeadsList((prev) =>
-        prev.map((item, idx) =>
-          idx === index
-            ? { ...item, pdfBrochureUrl: 'https://cdn.example-storage.com/brochures/sample.pdf' }
-            : item
-        )
-      );
+      setErrorMsg((err as Error).message || 'Failed to generate PDF brochure');
     } finally {
       setBrochureLoadingId(null);
     }
@@ -281,10 +275,10 @@ export default function DashboardPage() {
                     ) : (
                       <button
                         onClick={() => handleGenerateBrochure(lead, idx)}
-                        disabled={brochureLoadingId === (lead.id || `lead_mock_${idx}`)}
+                        disabled={brochureLoadingId === lead.id}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 transition-colors"
                       >
-                        {brochureLoadingId === (lead.id || `lead_mock_${idx}`) ? (
+                        {brochureLoadingId === lead.id ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
                             Rendering PDF...

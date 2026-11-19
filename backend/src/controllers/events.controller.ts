@@ -2,9 +2,10 @@ import type { Response } from 'express';
 import type { AuthenticatedRequest } from '../types/index.js';
 import { withTenantContext } from '../config/db.js';
 import { searchEvents, leads } from '../db/schema.js';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { EventSchedulerService } from '../services/event-scheduler.service.js';
 import { SocketService } from '../services/socket.service.js';
+import { respondWithError } from '../utils/respond-with-error.util.js';
 
 export class EventsController {
   /**
@@ -16,60 +17,30 @@ export class EventsController {
       const workspaceId = req.workspaceId!;
       const { name, category, location, scheduleCron = '0 9 * * *', status = 'active', queryPrompt } = req.body;
 
-      let createdEvent: typeof searchEvents.$inferSelect | undefined;
+      const [createdEvent] = await withTenantContext(workspaceId, async (tenantDb) =>
+        tenantDb
+          .insert(searchEvents)
+          .values({
+            workspaceId,
+            name,
+            category,
+            location,
+            scheduleCron,
+            status,
+            queryPrompt: queryPrompt || null,
+            totalLeadsFound: 0,
+          })
+          .returning()
+      );
 
-      try {
-        const [inserted] = await withTenantContext(workspaceId, async (tenantDb) => {
-          return tenantDb
-            .insert(searchEvents)
-            .values({
-              workspaceId,
-              name,
-              category,
-              location,
-              scheduleCron,
-              status,
-              queryPrompt: queryPrompt || null,
-              totalLeadsFound: 0,
-            })
-            .returning();
-        });
-        createdEvent = inserted;
-      } catch (dbErr) {
-        console.warn('[EventsController] DB fallback for createEvent:', (dbErr as Error).message);
-        createdEvent = {
-          id: `evt_${Date.now()}`,
-          workspaceId,
-          name,
-          category,
-          location,
-          scheduleCron,
-          status,
-          queryPrompt: queryPrompt || null,
-          totalLeadsFound: 0,
-          lastRunAt: null,
-          nextRunAt: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-      }
-
-      // Schedule repeatable BullMQ daily job if created in active state
       if (createdEvent.status === 'active') {
-        await EventSchedulerService.scheduleRecurringEvent(
-          createdEvent.id,
-          workspaceId,
-          createdEvent.scheduleCron
-        );
+        await EventSchedulerService.scheduleRecurringEvent(createdEvent.id, workspaceId, createdEvent.scheduleCron);
       }
 
-      res.status(201).json({
-        success: true,
-        event: createdEvent,
-      });
+      res.status(201).json({ success: true, event: createdEvent });
     } catch (error) {
       console.error('[EventsController] Error creating search event:', error);
-      res.status(500).json({ success: false, message: 'Failed to create search event' });
+      respondWithError(res, error, 'Failed to create search event');
     }
   }
 
@@ -82,50 +53,22 @@ export class EventsController {
       const workspaceId = req.workspaceId!;
       const { status } = req.query;
 
-      let eventsList: (typeof searchEvents.$inferSelect)[] = [];
+      const eventsList = await withTenantContext(workspaceId, async (tenantDb) =>
+        tenantDb
+          .select()
+          .from(searchEvents)
+          .where(
+            status
+              ? and(eq(searchEvents.workspaceId, workspaceId), eq(searchEvents.status, String(status)))
+              : eq(searchEvents.workspaceId, workspaceId)
+          )
+          .orderBy(desc(searchEvents.createdAt))
+      );
 
-      try {
-        eventsList = await withTenantContext(workspaceId, async (tenantDb) => {
-          const query = tenantDb
-            .select()
-            .from(searchEvents)
-            .where(
-              status
-                ? and(eq(searchEvents.workspaceId, workspaceId), eq(searchEvents.status, String(status)))
-                : eq(searchEvents.workspaceId, workspaceId)
-            )
-            .orderBy(desc(searchEvents.createdAt));
-          return query;
-        });
-      } catch (dbErr) {
-        console.warn('[EventsController] DB fallback for getEvents:', (dbErr as Error).message);
-        eventsList = [
-          {
-            id: 'evt_sample_1',
-            workspaceId,
-            name: 'Kolkata Restaurants Hunter',
-            category: 'Restaurant',
-            location: 'Kolkata',
-            scheduleCron: '0 9 * * *',
-            status: 'active',
-            queryPrompt: null,
-            totalLeadsFound: 18,
-            lastRunAt: new Date(),
-            nextRunAt: null,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        ];
-      }
-
-      res.json({
-        success: true,
-        events: eventsList,
-        total: eventsList.length,
-      });
+      res.json({ success: true, events: eventsList, total: eventsList.length });
     } catch (error) {
       console.error('[EventsController] Error listing search events:', error);
-      res.status(500).json({ success: false, message: 'Failed to retrieve search events' });
+      respondWithError(res, error, 'Failed to retrieve search events');
     }
   }
 
@@ -138,33 +81,23 @@ export class EventsController {
       const workspaceId = req.workspaceId!;
       const eventId = req.params.id as string;
 
-      let targetEvent: typeof searchEvents.$inferSelect | undefined;
-
-      try {
-        const [found] = await withTenantContext(workspaceId, async (tenantDb) => {
-          return tenantDb
-            .select()
-            .from(searchEvents)
-            .where(and(eq(searchEvents.id, eventId), eq(searchEvents.workspaceId, workspaceId)))
-            .limit(1);
-        });
-        targetEvent = found;
-      } catch (dbErr) {
-        console.warn('[EventsController] DB fallback for getEventById:', (dbErr as Error).message);
-      }
+      const [targetEvent] = await withTenantContext(workspaceId, async (tenantDb) =>
+        tenantDb
+          .select()
+          .from(searchEvents)
+          .where(and(eq(searchEvents.id, eventId), eq(searchEvents.workspaceId, workspaceId)))
+          .limit(1)
+      );
 
       if (!targetEvent) {
-        res.status(404).json({ success: false, message: 'Search event not found' });
+        res.status(404).json({ success: false, error: 'Search event not found' });
         return;
       }
 
-      res.json({
-        success: true,
-        event: targetEvent,
-      });
+      res.json({ success: true, event: targetEvent });
     } catch (error) {
       console.error('[EventsController] Error getting search event:', error);
-      res.status(500).json({ success: false, message: 'Failed to retrieve search event' });
+      respondWithError(res, error, 'Failed to retrieve search event');
     }
   }
 
@@ -176,67 +109,38 @@ export class EventsController {
     try {
       const workspaceId = req.workspaceId!;
       const eventId = req.params.id as string;
-      const { status } = req.body; // 'active' or 'stopped'
+      const { status } = req.body;
 
-      let updatedEvent: typeof searchEvents.$inferSelect | undefined;
+      const [updatedEvent] = await withTenantContext(workspaceId, async (tenantDb) =>
+        tenantDb
+          .update(searchEvents)
+          .set({ status: status === 'stopped' ? 'stopped' : 'active', updatedAt: new Date() })
+          .where(and(eq(searchEvents.id, eventId), eq(searchEvents.workspaceId, workspaceId)))
+          .returning()
+      );
 
-      try {
-        const [updated] = await withTenantContext(workspaceId, async (tenantDb) => {
-          return tenantDb
-            .update(searchEvents)
-            .set({
-              status: status === 'stopped' ? 'stopped' : 'active',
-              updatedAt: new Date(),
-            })
-            .where(and(eq(searchEvents.id, eventId), eq(searchEvents.workspaceId, workspaceId)))
-            .returning();
-        });
-        updatedEvent = updated;
-      } catch (dbErr) {
-        console.warn('[EventsController] DB fallback for toggleEventStatus:', (dbErr as Error).message);
-        updatedEvent = {
-          id: eventId,
-          workspaceId,
-          name: 'Updated Event',
-          category: 'Restaurant',
-          location: 'Kolkata',
-          scheduleCron: '0 9 * * *',
-          status: status === 'stopped' ? 'stopped' : 'active',
-          queryPrompt: null,
-          totalLeadsFound: 10,
-          lastRunAt: new Date(),
-          nextRunAt: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
+      if (!updatedEvent) {
+        res.status(404).json({ success: false, error: 'Search event not found' });
+        return;
       }
 
-      if (updatedEvent) {
-        if (updatedEvent.status === 'active') {
-          await EventSchedulerService.scheduleRecurringEvent(
-            eventId,
-            workspaceId,
-            updatedEvent.scheduleCron
-          );
-        } else {
-          await EventSchedulerService.removeRecurringEvent(eventId);
-        }
-
-        SocketService.emitEventUpdated(workspaceId, {
-          eventId: updatedEvent.id,
-          status: updatedEvent.status,
-          totalLeadsFound: updatedEvent.totalLeadsFound,
-          lastRunAt: updatedEvent.lastRunAt instanceof Date ? updatedEvent.lastRunAt.toISOString() : (String(updatedEvent.lastRunAt || new Date().toISOString())),
-        });
+      if (updatedEvent.status === 'active') {
+        await EventSchedulerService.scheduleRecurringEvent(eventId, workspaceId, updatedEvent.scheduleCron);
+      } else {
+        await EventSchedulerService.removeRecurringEvent(eventId);
       }
 
-      res.json({
-        success: true,
-        event: updatedEvent,
+      SocketService.emitEventUpdated(workspaceId, {
+        eventId: updatedEvent.id,
+        status: updatedEvent.status,
+        totalLeadsFound: updatedEvent.totalLeadsFound,
+        lastRunAt: updatedEvent.lastRunAt ? updatedEvent.lastRunAt.toISOString() : null,
       });
+
+      res.json({ success: true, event: updatedEvent });
     } catch (error) {
       console.error('[EventsController] Error toggling search event status:', error);
-      res.status(500).json({ success: false, message: 'Failed to toggle event status' });
+      respondWithError(res, error, 'Failed to toggle event status');
     }
   }
 
@@ -249,25 +153,23 @@ export class EventsController {
       const workspaceId = req.workspaceId!;
       const eventId = req.params.id as string;
 
-      await EventSchedulerService.removeRecurringEvent(eventId);
+      const deleted = await withTenantContext(workspaceId, async (tenantDb) =>
+        tenantDb
+          .delete(searchEvents)
+          .where(and(eq(searchEvents.id, eventId), eq(searchEvents.workspaceId, workspaceId)))
+          .returning({ id: searchEvents.id })
+      );
 
-      try {
-        await withTenantContext(workspaceId, async (tenantDb) => {
-          await tenantDb
-            .delete(searchEvents)
-            .where(and(eq(searchEvents.id, eventId), eq(searchEvents.workspaceId, workspaceId)));
-        });
-      } catch (dbErr) {
-        console.warn('[EventsController] DB delete fallback:', (dbErr as Error).message);
+      if (deleted.length === 0) {
+        res.status(404).json({ success: false, error: 'Search event not found' });
+        return;
       }
 
-      res.json({
-        success: true,
-        message: 'Search event deleted successfully',
-      });
+      await EventSchedulerService.removeRecurringEvent(eventId);
+      res.json({ success: true, message: 'Search event deleted successfully' });
     } catch (error) {
       console.error('[EventsController] Error deleting search event:', error);
-      res.status(500).json({ success: false, message: 'Failed to delete search event' });
+      respondWithError(res, error, 'Failed to delete search event');
     }
   }
 
@@ -281,15 +183,15 @@ export class EventsController {
       const eventId = req.params.id as string;
 
       const results = await EventSchedulerService.executeEventScrape(eventId, workspaceId);
+      if (results.status === 'not_found') {
+        res.status(404).json({ success: false, error: 'Search event not found' });
+        return;
+      }
 
-      res.json({
-        success: true,
-        message: 'Event scrape executed successfully',
-        summary: results,
-      });
+      res.json({ success: true, message: 'Event scrape executed successfully', summary: results });
     } catch (error) {
       console.error('[EventsController] Error triggering event scrape:', error);
-      res.status(500).json({ success: false, message: 'Failed to trigger event scrape' });
+      respondWithError(res, error, 'Failed to trigger event scrape');
     }
   }
 
@@ -302,53 +204,18 @@ export class EventsController {
       const workspaceId = req.workspaceId!;
       const eventId = req.params.id as string;
 
-      let eventLeads: (typeof leads.$inferSelect)[] = [];
+      const eventLeads = await withTenantContext(workspaceId, async (tenantDb) =>
+        tenantDb
+          .select()
+          .from(leads)
+          .where(and(eq(leads.workspaceId, workspaceId), eq(leads.eventId, eventId)))
+          .orderBy(desc(leads.createdAt))
+      );
 
-      try {
-        eventLeads = await withTenantContext(workspaceId, async (tenantDb) => {
-          return tenantDb
-            .select()
-            .from(leads)
-            .where(and(eq(leads.workspaceId, workspaceId), eq(leads.eventId, eventId)))
-            .orderBy(desc(leads.createdAt));
-        });
-      } catch (dbErr) {
-        console.warn('[EventsController] DB fallback for getEventLeads:', (dbErr as Error).message);
-        eventLeads = [
-          {
-            id: 'lead_mock_event_1',
-            workspaceId,
-            campaignId: null,
-            eventId,
-            businessName: 'Spice Route Bistro & Bar',
-            contactName: 'Rohan Sharma',
-            email: 'info@spiceroute.example.com',
-            phone: '+91 98300 12345',
-            website: 'https://www.spiceroute.example.com',
-            address: '12 Park Street, Kolkata, India',
-            googlePlaceId: 'ChIJ_spice_route_123',
-            leadScore: 88,
-            qualificationStatus: 'hot',
-            qualificationReasons: ['High rating (4.8)', 'Active operational hours'],
-            rawMetadata: { rating: 4.8, reviewsCount: 320 },
-            pdfBrochureUrl: null,
-            brochurePitchData: null,
-            brochureGeneratedAt: null,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        ];
-      }
-
-      res.json({
-        success: true,
-        eventId,
-        total: eventLeads.length,
-        leads: eventLeads,
-      });
+      res.json({ success: true, eventId, total: eventLeads.length, leads: eventLeads });
     } catch (error) {
       console.error('[EventsController] Error retrieving event leads:', error);
-      res.status(500).json({ success: false, message: 'Failed to retrieve event leads' });
+      respondWithError(res, error, 'Failed to retrieve event leads');
     }
   }
 }

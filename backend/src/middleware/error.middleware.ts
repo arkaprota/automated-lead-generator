@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import { IntegrationNotConfiguredError } from '../errors/integration-not-configured.error.js';
 
 export function errorHandler(
   err: Error,
@@ -10,7 +11,8 @@ export function errorHandler(
 
   const status = (err as { status?: number }).status || 500;
   // Never echo internal error text (DB / SDK messages) to clients on server errors
-  const message = status >= 500 ? 'Internal Server Error' : err.message || 'Request failed';
+  const safeToShow = status < 500 || err instanceof IntegrationNotConfiguredError;
+  const message = safeToShow ? err.message || 'Request failed' : 'Internal Server Error';
 
   res.status(status).json({
     success: false,

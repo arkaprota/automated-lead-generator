@@ -12,9 +12,9 @@ interface EventCreateModalProps {
 }
 
 export function EventCreateModal({ isOpen, workspaceId, onClose, onCreated }: EventCreateModalProps) {
-  const [category, setCategory] = useState('Restaurant');
-  const [location, setLocation] = useState('Kolkata');
-  const [name, setName] = useState('Daily Restaurant Leads in Kolkata');
+  const [category, setCategory] = useState('');
+  const [location, setLocation] = useState('');
+  const [name, setName] = useState('');
   const [timeHour, setTimeHour] = useState('09:00');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

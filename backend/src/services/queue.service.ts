@@ -1,5 +1,6 @@
 import { Queue, Worker, type Job } from 'bullmq';
 import { getRedisClient } from '../config/redis.js';
+import { IntegrationNotConfiguredError } from '../errors/integration-not-configured.error.js';
 
 export interface EmailDispatchJobData {
   workspaceId: string;
@@ -17,6 +18,11 @@ let emailQueue: Queue<EmailDispatchJobData> | null = null;
 let emailWorker: Worker<EmailDispatchJobData> | null = null;
 
 export class QueueService {
+  /** No email provider (Nylas / SMTP) is integrated yet; fail instead of pretending to send. */
+  static ensureEmailProviderConfigured(): void {
+    throw new IntegrationNotConfiguredError('email');
+  }
+
   /**
    * Initializes BullMQ email dispatch queue with rate-limiting and fairness settings
    */
@@ -60,12 +66,7 @@ export class QueueService {
         async (job: Job<EmailDispatchJobData>) => {
           console.log(`[Worker] Processing email dispatch for tenant: ${job.data.workspaceId}, lead: ${job.data.leadId}`);
           
-          // Throttled human-like pacing simulation (e.g. 1-3 seconds jitter)
-          await new Promise((resolve) => setTimeout(resolve, 1500));
-
-          // Dispatch via Nylas or SMTP provider
-          console.log(`[Worker] Dispatched email to ${job.data.toEmail} with brochure: ${job.data.pdfUrl || 'N/A'}`);
-          return { sent: true, sentAt: new Date().toISOString() };
+          QueueService.ensureEmailProviderConfigured();
         },
         {
           connection: getRedisClient(),

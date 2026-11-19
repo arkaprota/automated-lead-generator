@@ -28,6 +28,7 @@ import type {
   RawScrapedLead,
 } from '../types/index.js';
 import { ReplyIntent } from '../enums/reply-intent.enum.js';
+import { IntegrationNotConfiguredError } from '../errors/integration-not-configured.error.js';
 
 /** Max leads to score in a single batch request */
 const BATCH_SIZE = 10;
@@ -49,7 +50,7 @@ export class AiService {
 
     const client = getLlmClient(provider);
     if (!client.isConfigured()) {
-      return AiService._fallbackQueries(demographic);
+      return AiService._templateQueries(demographic);
     }
 
     const result = await client.generateJson({
@@ -62,7 +63,7 @@ Return JSON: { "queries": ["query 1", "query 2", "query 3", "query 4", "query 5"
       maxOutputTokens: 300,
     });
 
-    const queries = result?.queries?.slice(0, 5) ?? AiService._fallbackQueries(demographic);
+    const queries = result?.queries?.slice(0, 5) ?? AiService._templateQueries(demographic);
 
     // Cache result for 24 h (Rule 12)
     await LlmCacheService.set(workspaceId, provider || 'gemini', 'query-expansion', demographic, queries);
@@ -79,12 +80,12 @@ Return JSON: { "queries": ["query 1", "query 2", "query 3", "query 4", "query 5"
     // Heuristic shortcut — no-website leads are always hot, no LLM needed (Rule 12)
     const hasWebsite = Boolean(lead.website?.trim());
     if (!hasWebsite) {
-      return AiService._hotLeadFallback();
+      return AiService._noWebsiteHotLead();
     }
 
     const client = getLlmClient(provider);
     if (!client.isConfigured()) {
-      return AiService._warmLeadFallback();
+      return AiService._unscored('AI provider not configured');
     }
 
     const result = await client.generateJson({
@@ -94,7 +95,7 @@ Return JSON: { "queries": ["query 1", "query 2", "query 3", "query 4", "query 5"
       maxOutputTokens: 200,
     });
 
-    return result ?? AiService._warmLeadFallback();
+    return result ?? AiService._unscored('AI scoring failed');
   }
 
   // ─────────────────────────────────────────────
@@ -113,7 +114,7 @@ Return JSON: { "queries": ["query 1", "query 2", "query 3", "query 4", "query 5"
     // Shortcut no-website leads without LLM (Rule 12)
     for (let i = 0; i < leads.length; i++) {
       if (!leads[i].website?.trim()) {
-        results[i] = AiService._hotLeadFallback();
+        results[i] = AiService._noWebsiteHotLead();
       } else {
         needsAi.push({ idx: i, lead: leads[i] });
       }
@@ -123,7 +124,7 @@ Return JSON: { "queries": ["query 1", "query 2", "query 3", "query 4", "query 5"
 
     const client = getLlmClient(provider);
     if (!client.isConfigured()) {
-      for (const { idx } of needsAi) results[idx] = AiService._warmLeadFallback();
+      for (const { idx } of needsAi) results[idx] = AiService._unscored('AI provider not configured');
       return results;
     }
 
@@ -150,7 +151,7 @@ Return JSON: { "queries": ["query 1", "query 2", "query 3", "query 4", "query 5"
   ): Promise<BrochurePitchResponse> {
     const client = getLlmClient(provider);
     if (!client.isConfigured()) {
-      return AiService._pitchFallback(lead.businessName, senderCompanyName);
+      throw new IntegrationNotConfiguredError('ai');
     }
 
     const result = await client.generateJson({
@@ -166,7 +167,8 @@ Return JSON: { "headline": "...", "painPoints": ["...", "...", "..."], "tailored
       maxOutputTokens: 800,
     });
 
-    return result ?? AiService._pitchFallback(lead.businessName, senderCompanyName);
+    if (!result) throw new IntegrationNotConfiguredError('ai', 'unavailable');
+    return result;
   }
 
   // ─────────────────────────────────────────────
@@ -234,12 +236,12 @@ Return a JSON array of exactly ${leads.length} objects, one per lead in the same
     });
 
     if (!result || result.length !== leads.length) {
-      return leads.map(() => AiService._warmLeadFallback());
+      return leads.map(() => AiService._unscored('AI scoring failed'));
     }
     return result;
   }
 
-  private static _fallbackQueries(demographic: string): string[] {
+  private static _templateQueries(demographic: string): string[] {
     return [
       `${demographic} agencies`,
       `Top rated ${demographic}`,
@@ -249,37 +251,25 @@ Return a JSON array of exactly ${leads.length} objects, one per lead in the same
     ];
   }
 
-  private static _hotLeadFallback(): LeadScoringResponse {
+  /** Rule 12 deterministic shortcut: a missing website is a fact, scored hot without AI. */
+  private static _noWebsiteHotLead(): LeadScoringResponse {
     return {
       leadScore: 92,
       qualificationStatus: 'hot',
-      reasons: ['No existing website detected - prime prospect for web design & online presence'],
-      keyStrengths: ['Established location', 'Direct phone contact available'],
-      recommendedPitchAngle: 'High-converting mobile-friendly website and Google Maps local SEO',
+      reasons: ['No website listed'],
+      keyStrengths: [],
+      recommendedPitchAngle: 'Website and local search presence',
     };
   }
 
-  private static _warmLeadFallback(): LeadScoringResponse {
+  /** Honest "not scored" state — no invented score when AI is unavailable. */
+  private static _unscored(reason: string): LeadScoringResponse {
     return {
-      leadScore: 70,
-      qualificationStatus: 'warm',
-      reasons: ['Active online presence but potential for conversion optimization'],
-      keyStrengths: ['Established business domain'],
-      recommendedPitchAngle: 'Website revamp and automated lead generation pipeline',
-    };
-  }
-
-  private static _pitchFallback(businessName: string, senderCompanyName: string): BrochurePitchResponse {
-    return {
-      headline: `Modern Growth Blueprint for ${businessName}`,
-      painPoints: [
-        'Missing out on 40%+ of local customer inquiries searching on mobile',
-        'Lack of an automated 24/7 client booking or acquisition funnel',
-        'Competitors capturing top Google search rankings in the immediate area',
-      ],
-      tailoredSolution: `${senderCompanyName} designs high-converting digital assets and automated outreach funnels specifically tailored for businesses like ${businessName}.`,
-      estimatedRoi: '3x to 5x increase in qualified monthly inbound consultations within 90 days.',
-      callToAction: 'Book a free 15-minute digital growth strategy session with our team.',
+      leadScore: 0,
+      qualificationStatus: 'unqualified',
+      reasons: [`Not scored — ${reason}`],
+      keyStrengths: [],
+      recommendedPitchAngle: '',
     };
   }
 

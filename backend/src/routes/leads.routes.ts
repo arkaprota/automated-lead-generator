@@ -9,6 +9,7 @@ import { SocketService } from '../services/socket.service.js';
 import { withTenantContext } from '../config/db.js';
 import { leads } from '../db/schema.js';
 import { eq, desc } from 'drizzle-orm';
+import { respondWithError } from '../utils/respond-with-error.util.js';
 
 const router = Router();
 
@@ -54,15 +55,13 @@ router.post(
       // Step C: Dedup against existing workspace leads BEFORE scoring (Rule 12 — no wasted tokens)
       const existingPlaceIds = new Set<string>();
       const existingWebsites = new Set<string>();
-      try {
-        const existing = await withTenantContext(workspaceId, async (tenantDb) =>
-          tenantDb.select({ googlePlaceId: leads.googlePlaceId, website: leads.website }).from(leads)
-        );
-        for (const r of existing) {
-          if (r.googlePlaceId) existingPlaceIds.add(r.googlePlaceId);
-          if (r.website) existingWebsites.add(r.website);
-        }
-      } catch { /* DB unavailable — proceed without dedup */ }
+      const existing = await withTenantContext(workspaceId, async (tenantDb) =>
+        tenantDb.select({ googlePlaceId: leads.googlePlaceId, website: leads.website }).from(leads)
+      );
+      for (const r of existing) {
+        if (r.googlePlaceId) existingPlaceIds.add(r.googlePlaceId);
+        if (r.website) existingWebsites.add(r.website);
+      }
 
       const newLeads = rawLeads.filter((raw) => {
         if (raw.googlePlaceId && existingPlaceIds.has(raw.googlePlaceId)) return false;
@@ -112,35 +111,18 @@ router.post(
       }
 
       // Step D: Save scored leads into Postgres under workspace_id with RLS isolation
-      let insertedLeads: unknown[] = [];
-      try {
-        insertedLeads = await withTenantContext(workspaceId, async (tenantDb) => {
-          const results = [];
-          for (const leadData of processedLeads) {
-            try {
-              const [inserted] = await tenantDb
-                .insert(leads)
-                .values(leadData)
-                .onConflictDoNothing() // Respect workspace-wide deduplication constraints
-                .returning();
-              if (inserted) {
-                results.push(inserted);
-              }
-            } catch (insertErr) {
-              console.warn('[LeadsRouter] Duplicate or insert conflict skipped:', insertErr);
-            }
-          }
-          return results;
-        });
-      } catch (dbError) {
-        console.warn('[LeadsRouter] Database connection unavailable, falling back to in-memory response:', (dbError as Error).message);
-        insertedLeads = processedLeads.map((item, index) => ({
-          id: `lead_mock_${index + 1}`,
-          ...item,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }));
-      }
+      const insertedLeads = await withTenantContext(workspaceId, async (tenantDb) => {
+        const results = [];
+        for (const leadData of processedLeads) {
+          const [inserted] = await tenantDb
+            .insert(leads)
+            .values(leadData)
+            .onConflictDoNothing() // Respect workspace-wide deduplication constraints
+            .returning();
+          if (inserted) results.push(inserted);
+        }
+        return results;
+      });
 
       SocketService.emitLeadGenerationProgress(workspaceId, {
         workspaceId,
@@ -162,11 +144,7 @@ router.post(
       });
     } catch (error) {
       console.error('[LeadsRouter] Error in lead generation pipeline:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to complete lead generation pipeline',
-        details: (error as Error).message,
-      });
+      respondWithError(res, error, 'Failed to complete lead generation pipeline');
     }
   }
 );
@@ -194,10 +172,7 @@ router.get('/', async (req: AuthenticatedRequest, res: Response): Promise<void> 
     });
   } catch (error) {
     console.error('[LeadsRouter] Error listing leads:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to retrieve workspace leads',
-    });
+    respondWithError(res, error, 'Failed to retrieve workspace leads');
   }
 });
 

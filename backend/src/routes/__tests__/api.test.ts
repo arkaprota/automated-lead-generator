@@ -1,10 +1,18 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 
 vi.hoisted(() => {
   process.env.WEBHOOK_SECRET = 'test-webhook-secret';
   process.env.CLERK_SECRET_KEY = 'sk_test_unit';
 });
+
+// Test-only scraper fixtures (Rule 14 exception: __tests__/ fixtures)
+const scrapeGoogleMaps = vi.hoisted(() => vi.fn());
+vi.mock('../../services/lead-scraper.service.js', () => ({ LeadScraperService: { scrapeGoogleMaps } }));
+const SCRAPED_FIXTURE = [
+  { businessName: 'Fixture Cafe', website: null, phone: '+10000000001', googlePlaceId: 'fixture_place_1' },
+  { businessName: 'Fixture Studio', website: 'https://fixture-studio.test', phone: '+10000000002', googlePlaceId: 'fixture_place_2' },
+];
 
 // Only 'valid-test-token' authenticates, as workspace ws_test_tenant
 vi.mock('../../utils/verify-clerk-token.util.js', async (importOriginal) => ({
@@ -20,6 +28,8 @@ vi.mock('../../config/db.js', () => ({
   db: {},
   withTenantContext: vi.fn(async (_workspaceId: string, callback: (tenantDb: unknown) => Promise<unknown>) => {
     const mockTenantDb = {
+      // Awaiting a query chain (e.g. select().from()) resolves to rows, like a real Drizzle query
+      then: (resolve: (rows: unknown[]) => unknown) => resolve([]),
       select: vi.fn().mockReturnThis(),
       from: vi.fn().mockReturnThis(),
       where: vi.fn().mockReturnThis(),
@@ -46,8 +56,14 @@ vi.mock('../../config/db.js', () => ({
 
 import { app } from '../../server.js';
 import { signWebhookBody, WEBHOOK_SIGNATURE_HEADER } from '../../middleware/webhook-signature.middleware.js';
+import { IntegrationNotConfiguredError } from '../../errors/integration-not-configured.error.js';
+import { AiService } from '../../services/ai.service.js';
 
 const AUTH = 'Bearer valid-test-token';
+
+beforeEach(() => {
+  scrapeGoogleMaps.mockReset().mockResolvedValue(SCRAPED_FIXTURE);
+});
 
 describe('Cold Email SaaS API Test Suite', () => {
   it('GET /api/health should return ok and service details', async () => {
@@ -83,6 +99,30 @@ describe('Cold Email SaaS API Test Suite', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
+    });
+
+    it('returns 503 (no invented leads) when the scraper is not configured', async () => {
+      scrapeGoogleMaps.mockRejectedValueOnce(new IntegrationNotConfiguredError('scraper'));
+      const res = await request(app)
+        .post('/api/leads/generate')
+        .set('Authorization', AUTH)
+        .send({ demographic: 'Dental clinics in Austin' });
+
+      expect(res.status).toBe(503);
+      expect(res.body.error).toBe('Lead scraper not configured');
+      expect(res.body.leads).toBeUndefined();
+    });
+
+    it('saves AI-dependent leads as unqualified, not with an invented score, when no AI key is set', async () => {
+      const res = await request(app)
+        .post('/api/leads/generate')
+        .set('Authorization', AUTH)
+        .send({ demographic: 'Dental clinics in Austin' });
+
+      expect(res.status).toBe(201);
+      const scored = await AiService.scoreAndQualifyLeadsBatch(SCRAPED_FIXTURE, null);
+      expect(scored[0]).toMatchObject({ qualificationStatus: 'hot', reasons: ['No website listed'] });
+      expect(scored[1]).toMatchObject({ leadScore: 0, qualificationStatus: 'unqualified' });
     });
   });
 

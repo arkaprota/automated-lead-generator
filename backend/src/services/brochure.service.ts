@@ -1,6 +1,7 @@
 import ejs from 'ejs';
 import puppeteer from 'puppeteer';
 import type { BrochurePitchResponse, RawScrapedLead } from '../types/index.js';
+import { IntegrationNotConfiguredError } from '../errors/integration-not-configured.error.js';
 
 export interface BrochureSenderProfile {
   companyName: string;
@@ -104,10 +105,6 @@ export class BrochureService {
         margin: { top: '20mm', bottom: '20mm', left: '15mm', right: '15mm' },
       });
       return Buffer.from(pdfBuffer);
-    } catch (err) {
-      console.warn('[BrochureService] Puppeteer PDF rendering fallback:', err);
-      // Fallback PDF buffer emulation for non-headless serverless / dev environments
-      return Buffer.from(renderedHtml, 'utf-8');
     } finally {
       await browser?.close();
     }
@@ -120,8 +117,12 @@ export class BrochureService {
     _leadId: string,
     _pdfBuffer: Buffer
   ): Promise<string> {
-    // In production, upload to Cloudinary or Backblaze B2
-    const publicId = `brochures/${Date.now()}_brochure.pdf`;
-    return `https://cdn.example-storage.com/${publicId}`;
+    BrochureService.ensureStorageConfigured();
+    return '';
+  }
+
+  /** No storage provider (Cloudinary / Backblaze B2) is integrated yet. Call before spending AI tokens on a pitch. */
+  static ensureStorageConfigured(): void {
+    throw new IntegrationNotConfiguredError('storage');
   }
 }

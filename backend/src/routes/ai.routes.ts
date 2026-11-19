@@ -8,6 +8,7 @@ import { BrochureService } from '../services/brochure.service.js';
 import { withTenantContext } from '../config/db.js';
 import { leads, senderProfiles } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
+import { respondWithError } from '../utils/respond-with-error.util.js';
 
 const router = Router();
 
@@ -43,10 +44,7 @@ router.post(
         queries,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: 'Failed to expand demographic queries',
-      });
+      respondWithError(res, error, 'Failed to expand demographic queries');
     }
   }
 );
@@ -95,14 +93,12 @@ router.post(
         return;
       }
 
-      const sender = senderData || {
-        companyName: 'Apex Growth Labs',
-        senderName: 'Alex Carter',
-        senderEmail: 'alex@apexgrowthlabs.com',
-        websiteUrl: 'https://apexgrowthlabs.com',
-        phone: '+1 (555) 902-1200',
-        logoUrl: null,
-      };
+      if (!senderData) {
+        res.status(400).json({ success: false, error: 'Create a sender profile before generating brochures' });
+        return;
+      }
+      const sender = senderData;
+      BrochureService.ensureStorageConfigured();
 
       // 2. Generate personalized pitch content via selected AI provider
       const provider = await WorkspaceAiProviderService.getProvider(workspaceId);
@@ -150,11 +146,7 @@ router.post(
       });
     } catch (error) {
       console.error('[AIRouter] Error generating brochure:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to generate PDF brochure',
-        details: (error as Error).message,
-      });
+      respondWithError(res, error, 'Failed to generate PDF brochure');
     }
   }
 );
@@ -177,10 +169,7 @@ router.post(
         classification,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: 'Failed to classify reply intent',
-      });
+      respondWithError(res, error, 'Failed to classify reply intent');
     }
   }
 );

@@ -120,6 +120,18 @@ Applies to every LLM call the platform makes (Gemini, Claude, OpenAI) **and** to
 2. Make surgical edits (Rule 6) instead of rewriting files; do not re-read files that were just written.
 3. Keep plans, logs, and replies concise; do not repeat content already recorded elsewhere — link to it.
 
+### Rule 13: Code Placement — Backend Code in `/backend`, Frontend Code in `/frontend`
+- **Every source file has exactly one home**: server-side code (routes, controllers, services, middleware, workers, DB/Redis/queue access, schemas, server utils, server tests) goes in `/backend`; UI code (pages, components, hooks, client API wrappers, styles, client tests) goes in `/frontend`. No application code at the repository root or in shared folders.
+- **Logic follows its side**: business rules, validation that protects data, and anything needing a secret live in `/backend`. The frontend only renders, collects input, and calls `/api/*` or Socket.io.
+- **Types are mirrored, not shared**: when both sides need a type or enum, each keeps its own copy in its own `types/` folder (Rule 1 — no cross-imports).
+- **Plans must split by side**: every implementation plan (Rule 9) lists files under separate **Backend (`/backend`)** and **Frontend (`/frontend`)** sections, stating "no changes" for a side that is untouched.
+
+### Rule 14: No Demo, Mock, or Sample Data in the Project
+- **Zero demo data**: application code in `/backend` and `/frontend` MUST NOT contain fake, sample, seeded, or placeholder records — no hardcoded businesses, leads, events, campaigns, replies, metrics, or canned AI output presented as real.
+- **No fabricated fallbacks**: when a dependency (DB, Redis, scraper, AI provider, storage) is missing or fails, return a clear error or an honest empty state — never invent data to fill the gap. Deterministic logic on *real* input (e.g. null website ➡️ Hot Lead, Rule 12) is allowed; generating made-up content is not.
+- **Remove on sight**: any demo data found in the codebase is deleted as part of the current task, and new demo data is never added.
+- **Allowed exceptions** (not shipped to users): fixtures inside `__tests__/` used only by automated tests, and placeholder values in `.env.example` templates.
+
 - The 6 Core Documentation-Driven Development (DDD) files are housed in the [`.agents/`](.agents/) directory:
   - [`.agents/prd.md`](.agents/prd.md)
   - [`.agents/architecture.md`](.agents/architecture.md)

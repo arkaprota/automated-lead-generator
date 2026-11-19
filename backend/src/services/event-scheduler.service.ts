@@ -107,38 +107,17 @@ export class EventSchedulerService {
   ): Promise<{ totalScraped: number; newLeadsSaved: number; status: string }> {
     console.log(`[EventScheduler] Executing search event scrape for event ${eventId} in workspace ${workspaceId}...`);
 
-    let targetEvent: typeof searchEvents.$inferSelect | undefined;
-
-    try {
-      const [found] = await withTenantContext(workspaceId, async (tenantDb) => {
-        return tenantDb
-          .select()
-          .from(searchEvents)
-          .where(and(eq(searchEvents.id, eventId), eq(searchEvents.workspaceId, workspaceId)))
-          .limit(1);
-      });
-      targetEvent = found;
-    } catch (err) {
-      console.warn(`[EventScheduler] Database query failed for event ${eventId}, checking fallback:`, (err as Error).message);
-    }
+    const [targetEvent] = await withTenantContext(workspaceId, async (tenantDb) =>
+      tenantDb
+        .select()
+        .from(searchEvents)
+        .where(and(eq(searchEvents.id, eventId), eq(searchEvents.workspaceId, workspaceId)))
+        .limit(1)
+    );
 
     if (!targetEvent) {
-      // Create mock representation if offline/dev mode without DB table populated
-      targetEvent = {
-        id: eventId,
-        workspaceId,
-        name: 'Auto Search Event',
-        category: 'Restaurant',
-        location: 'Kolkata',
-        scheduleCron: '0 9 * * *',
-        status: 'active',
-        queryPrompt: null,
-        totalLeadsFound: 0,
-        lastRunAt: null,
-        nextRunAt: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      console.warn(`[EventScheduler] Event ${eventId} not found in workspace ${workspaceId}. Skipping execution.`);
+      return { totalScraped: 0, newLeadsSaved: 0, status: 'not_found' };
     }
 
     // Stop execution if event is marked as stopped
@@ -161,7 +140,7 @@ export class EventSchedulerService {
     const rawExisting = await withTenantContext(workspaceId, async (tenantDb) =>
       tenantDb.select({ googlePlaceId: leads.googlePlaceId, website: leads.website }).from(leads)
         .where(and(eq(leads.workspaceId, workspaceId), eq(leads.eventId, eventId)))
-    ).catch(() => []);
+    );
     const existing = Array.isArray(rawExisting)
       ? (rawExisting as { googlePlaceId: string | null; website: string | null }[])
       : [];
@@ -205,38 +184,25 @@ export class EventSchedulerService {
 
     // Step D: Insert leads with Zero-Duplicate Invariant (.onConflictDoNothing())
     let newlyInsertedCount = 0;
-    try {
-      await withTenantContext(workspaceId, async (tenantDb) => {
-        for (const leadData of processedLeads) {
-          try {
-            const [inserted] = await tenantDb
-              .insert(leads)
-              .values(leadData)
-              .onConflictDoNothing() // Deduplicates per workspace on (workspace_id, google_place_id) and (workspace_id, website)
-              .returning();
-            if (inserted) {
-              newlyInsertedCount++;
-            }
-          } catch (insertErr) {
-            console.warn('[EventScheduler] Duplicate lead skipped on conflict:', (insertErr as Error).message);
-          }
-        }
+    await withTenantContext(workspaceId, async (tenantDb) => {
+      for (const leadData of processedLeads) {
+        const [inserted] = await tenantDb
+          .insert(leads)
+          .values(leadData)
+          .onConflictDoNothing() // Deduplicates per workspace on (workspace_id, google_place_id) and (workspace_id, website)
+          .returning();
+        if (inserted) newlyInsertedCount++;
+      }
 
-        // Update event metrics
-        const newTotal = (targetEvent!.totalLeadsFound || 0) + newlyInsertedCount;
-        await tenantDb
-          .update(searchEvents)
-          .set({
-            totalLeadsFound: newTotal,
-            lastRunAt: new Date(),
-            updatedAt: new Date(),
-          })
-          .where(and(eq(searchEvents.id, eventId), eq(searchEvents.workspaceId, workspaceId)));
-      });
-    } catch (dbErr) {
-      console.warn(`[EventScheduler] DB persistence fallback for event ${eventId}:`, (dbErr as Error).message);
-      newlyInsertedCount = processedLeads.length;
-    }
+      await tenantDb
+        .update(searchEvents)
+        .set({
+          totalLeadsFound: (targetEvent.totalLeadsFound || 0) + newlyInsertedCount,
+          lastRunAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(and(eq(searchEvents.id, eventId), eq(searchEvents.workspaceId, workspaceId)));
+    });
 
     const updatedTotal = (targetEvent.totalLeadsFound || 0) + newlyInsertedCount;
     const lastRunIso = new Date().toISOString();
