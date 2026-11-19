@@ -35,7 +35,7 @@
 | **#025** | 2026-11-16 11:22 | Add Rule 12 Minimum Token Usage to AGENTS.md & rules.md | ✅ Completed | `1865ed6` |
 | **#026** | 2026-11-16 17:18 | Multi-LLM Provider Selection (Gemini / Claude / OpenAI) per Workspace | ✅ Completed | `e1fc6c4` |
 | **#027** | 2026-11-16 17:31 | SRP File Structure Clean-up: Backend type split, kebab-case rename, frontend type dedup, secret removal | ✅ Completed | `004fa76` |
-| **#028** | 2026-11-19 12:10 | Local .env files + security hardening (Clerk auth, signed webhooks, socket auth, RLS fix, deps to 0 vulns) | ✅ Completed | pending push |
+| **#028** | 2026-11-19 12:10 | Local .env files + security hardening (Clerk auth, signed webhooks, socket auth, RLS fix, deps to 0 vulns) | ✅ Completed | `a2ad112` |
 
 
 ---
@@ -429,5 +429,5 @@
 | **Files Changed** | See `.agents/plans/security-hardening.md` §0–§2. Local-only (gitignored): `backend/.env`, `frontend/.env.local`. |
 | **Key Decisions** | 1. Tenant identity now comes from a verified Clerk JWT (active org = `workspace_id`); `x-workspace-id` ignored. Dev-only bypass when `CLERK_SECRET_KEY` is empty; production refuses to boot without `CLERK_SECRET_KEY`/`WEBHOOK_SECRET`.<br>2. Webhooks require `x-webhook-signature: sha256=<HMAC(raw body)>`, timing-safe compare, fail closed.<br>3. Socket.io verifies the token at handshake and assigns the room server-side.<br>4. RLS context: `SET LOCAL ... = $1` (invalid) → `set_config(..., $1, true)`. Neon TLS now verifies certificates.<br>5. helmet, rate limits (300/15 min per IP; 20/min per workspace on AI/leads), 1 MB body limit, generic 5xx messages, Puppeteer with JS off + all network blocked.<br>6. Deps: next 15.5.29 (+ postcss override), puppeteer 25.16.0, drizzle-orm 0.45.4, drizzle-kit 0.31.11, zod 4.6.7; Zod 4 API migrations applied. Also fixed `.js` import extensions that 500'd every frontend page. |
 | **Verification** | Backend 17/17 Vitest (5 new auth/webhook tests); `tsc --noEmit` 0 errors both apps; `npm audit` 0 vulnerabilities both apps; live checks: helmet headers present, unsigned/forged webhook 401, signed 200, all pages 200. |
-| **Git Commit** | pending push |
+| **Git Commit** | `a2ad112` |
 | **Status** | ✅ Completed |
